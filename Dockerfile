@@ -1,8 +1,6 @@
 FROM binaryphile/redmine-2.3-stable:prereqs
 MAINTAINER Ted Lilley <ted.lilley@gmail.com>
 
-EXPOSE 3001
-
 ENV DEBIAN_FRONTEND noninteractive
 #ENV RAILS_ENV production
 ENV REDMINE_LANG en
@@ -19,5 +17,5 @@ RUN cd redmine && bundle exec rake db:migrate
 RUN cd redmine && bundle exec rake redmine:load_default_data
 
 WORKDIR /redmine
-CMD ["bundle", "exec", "rails", "s", "-p", "3001"]
+ENTRYPOINT ["bundle", "exec", "rails", "s"]
 
