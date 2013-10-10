@@ -1,0 +1,15 @@
+production:
+  adapter: <% ENV['DB_ADAPTER'] %>
+  database: <% ENV['DB_DATABASE'] %>
+  host: <% ENV['DB_HOST'] %>
+  username: <% ENV['DB_USERNAME'] %>
+  password: <% ENV['DB_PASSWORD'] %>
+
+development:
+  adapter: sqlite3
+  database: db/development.sqlite3
+
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+
