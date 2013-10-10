@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo "deb http://ubuntu.wikimedia.org/ubuntu precise main restricted universe multiverse" > /etc/apt/sources.list
 RUN apt-get update
 
-RUN apt-get install -y git wget build-essential
+RUN apt-get install -y git wget build-essential libpq-dev libmagickwand-dev libsqlite3-dev
 RUN wget -O ruby-install-0.3.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.3.0.tar.gz
 RUN tar -xzvf ruby-install-0.3.0.tar.gz
 RUN cd ruby-install-0.3.0 && make install
