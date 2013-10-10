@@ -17,6 +17,6 @@ RUN ruby-install -i /usr/local/ ruby 2.0.0-p247
 RUN gem update --system
 RUN gem install bundler
 RUN git clone git://github.com/redmine/redmine
-RUN cd redmine && git checkout 2.2-stable
+RUN cd redmine && git checkout 2.3-stable
 RUN cd redmine && bundle install
 
