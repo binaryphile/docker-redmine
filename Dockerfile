@@ -1,4 +1,4 @@
-FROM binaryphile/ruby-2.0.0-p247
+FROM binaryphile/redmine-2.3-stable:prereqs
 MAINTAINER Ted Lilley <ted.lilley@gmail.com>
 
 EXPOSE 3001
