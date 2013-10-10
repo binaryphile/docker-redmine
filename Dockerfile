@@ -7,8 +7,6 @@ ENV DEBIAN_FRONTEND noninteractive
 #ENV RAILS_ENV production
 ENV REDMINE_LANG en
 
-RUN apt-get update
-
 RUN gem update --system
 RUN gem install bundler
 RUN git clone git://github.com/redmine/redmine
