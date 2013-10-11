@@ -1,14 +1,14 @@
-FROM binaryphile/redmine-2.3-stable:bundle
+FROM binaryphile/redmine-2.3-stable:data
 MAINTAINER Ted Lilley <ted.lilley@gmail.com>
 
 #ENV DEBIAN_FRONTEND noninteractive
 #ENV RAILS_ENV production
-ENV REDMINE_LANG en
+#ENV REDMINE_LANG en
+ADD Gemfile.local /redmine/
+ADD unicorn.rb /redmine/config/
 
-RUN cd redmine && bundle exec rake generate_secret_token
-RUN cd redmine && bundle exec rake db:migrate
-RUN cd redmine && bundle exec rake redmine:load_default_data
+RUN cd redmine && bundle update
 
 WORKDIR /redmine
-ENTRYPOINT ["bundle", "exec", "rails", "s"]
+CMD ["bundle", "exec", "unicorn_rails", "-c", "config/unicorn.rb", "-E", "production", "-D"]
 

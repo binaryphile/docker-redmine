@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+
+# Use unicorn as the app server
+gem 'unicorn', group: :production
+
