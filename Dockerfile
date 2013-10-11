@@ -1,14 +1,21 @@
-FROM binaryphile/redmine-2.3-stable:bundle
+FROM binaryphile/redmine-2.3-stable:prereqs
 MAINTAINER Ted Lilley <ted.lilley@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV RAILS_ENV production
+#ENV RAILS_ENV production
 ENV REDMINE_LANG en
 
-RUN cd redmine && bundle exec rake generate_secret_token
-RUN cd redmine && bundle exec rake db:migrate
-RUN cd redmine && bundle exec rake redmine:load_default_data
+RUN gem update --system
+RUN gem install bundler
+RUN git clone git://github.com/redmine/redmine
+RUN cd redmine && git checkout 2.3-stable
+ADD database.yml /redmine/config/
+RUN cd redmine && bundle install --without test
+RUN mkdir /redmine/public/plugin_assets
+#RUN cd redmine && bundle exec rake generate_secret_token
+#RUN cd redmine && bundle exec rake db:migrate
+#RUN cd redmine && bundle exec rake redmine:load_default_data
 
-WORKDIR /redmine
-ENTRYPOINT ["bundle", "exec", "rails", "s"]
+#WORKDIR /redmine
+#ENTRYPOINT ["bundle", "exec", "rails", "s"]
 
