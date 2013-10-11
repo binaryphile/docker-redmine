@@ -11,7 +11,7 @@ RUN gem install bundler
 ADD Gemfile.local /redmine/
 ADD unicorn.rb /redmine/config/
 
-RUN bundle update
+RUN cd /redmine && bundle update
 
 WORKDIR /redmine
 CMD ["bundle", "exec", "unicorn_rails", "-c", "config/unicorn.rb", "-E", "production", "-D"]
