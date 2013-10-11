@@ -1,9 +1,9 @@
 FROM binaryphile/redmine-2.3-stable:prereqs
 MAINTAINER Ted Lilley <ted.lilley@gmail.com>
 
-ENV DEBIAN_FRONTEND noninteractive
+#ENV DEBIAN_FRONTEND noninteractive
 #ENV RAILS_ENV production
-ENV REDMINE_LANG en
+#ENV REDMINE_LANG en
 
 RUN gem update --system
 RUN gem install bundler
