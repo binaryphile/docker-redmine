@@ -1,0 +1,3 @@
+deb http://ubuntu.wikimedia.org/ubuntu precise main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu precise main
+
