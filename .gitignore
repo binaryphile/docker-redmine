@@ -1,4 +1,5 @@
 redmine-*/
 files/
 log/
+.bash_history
 
