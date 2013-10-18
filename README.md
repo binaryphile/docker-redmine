@@ -92,10 +92,10 @@ github
 - Install your code in a new Ruby-only container:
 
 ```
-    docker run -i -t -v $(pwd):/root -e HOME=/root binaryphile/ruby:2.0.0-p247 /bin/bash
-    # cd /root
-    # ./install.sh
-    # exit
+docker run -i -t -v $(pwd):/root -e HOME=/root binaryphile/ruby:2.0.0-p247 /bin/bash
+# cd /root
+# ./install.sh
+# exit
 ```
 
 This will install your code in the container, handle directory
@@ -103,18 +103,25 @@ permissions and link key directories to the local filesystem.
 
 - Commit the new image:
 
-    docker ps -a # find the container id that you just ran
-    docker commit [id] [your name]/[repo]
+```
+docker ps -a # find the container id that you just ran
+docker commit [id] [your name]/[repo]
+```
 
-  I don't recommend tagging custom versions of development since you'll
-  always want to pull latest.
+ I don't recommend tagging custom versions of development since you'll
+ always want to pull latest.
+
 - Remove the old container if you want:
 
-    docker rm [id]
+```
+docker rm [id]
+```
 
 - Push your image if you want:
 
-    docker push [your name]/[repo]
+```
+docker push [your name]/[repo]
+```
 
 That's it for creating the image.  Now you can pull that image
 anywhere you want.
