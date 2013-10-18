@@ -374,7 +374,9 @@ the image, when you run a container for the first time.  I suggest as
 part of your initializing the container, you take an additional step of
 running it interactively once to perform system updates, then committing
 that as a new local image and running from it (this is another reason to
-not run from explicit tags).
+not run from explicit tags).  You probably _don't_ want to push those
+images to the index, however, as there will be lots of them and they go
+stale pretty much immediately.
 
 Updating images other than that method just makes them fatter while
 still needing to be updated again when you deploy them.  That's why I'm
