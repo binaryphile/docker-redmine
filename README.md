@@ -230,10 +230,12 @@ code, so git and the [Capistrano] deployment model would be very
 different, but I'm sure it could be adapted.
 
 The [Spree Commerce] project has a good [deployment setup project] which
-includes configurations for bluepill, capistrano and [foreman].
+includes configurations for bluepill, capistrano and [foreman].  They
+don't directly apply here, but if you're looking for inspiration that's
+as good a place as any to start.
 
-You could also certainly look at automation through tools like [Chef],
-[Puppet] or [Ansible].
+You could also look at automation through tools like [Chef], [Puppet] or
+[Ansible].
 
 ### Precompiling Assets
 
