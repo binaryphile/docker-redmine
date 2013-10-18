@@ -2,4 +2,5 @@ redmine-*/
 files/
 log/
 .bash_history
+*.sqlite3
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 ROOT=/root
-IMAGE=binaryphile/ruby:2.0.0-p247
+IMAGE=binaryphile/redmine:2.3-stable
 
-docker run -i -t -v $(pwd):$ROOT -e HOME=$ROOT $IMAGE /bin/bash
+docker run -i -t -v $(pwd):$ROOT -p :3000 -e HOME=$ROOT $IMAGE /bin/bash
 
