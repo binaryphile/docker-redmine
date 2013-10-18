@@ -9,6 +9,10 @@ running:
 
     docker pull binaryphile/redmine:2.3-stable
 
+Don't pull without the "2.3-stable" tag since that will be my personal,
+customized redmine for my company's deployment, which is not what you
+want.
+
 That image contains a vanilla (no plugins) Redmine 2.3-stable (latest at
 time of writing).  It also includes [unicorn] for production use, but
 you won't need that if you're just taking it out for a spin.  You can
@@ -19,12 +23,12 @@ below for usage.
 Ruby 2.0.0-p247 and all dependencies are included in the container, so
 running it doesn't require any bundling or software installation.
 
-The container is configured to put logs and files uploaded to Redmine on
+The container is configured to put logs and Redmine file attachments on
 your local filesystem via mounting the current directory in the
 container.
 
-Any modifications to Redmine require rebuilding the container, which
-the scripts given here help simplify.
+Any modifications to Redmine, including adding plugins, require
+rebuilding the container, which the scripts given here help simplify.
 
 ## Basic Usage (Development Mode)
 
@@ -60,12 +64,12 @@ Scripts are included to ease rebuilding the container.
 
 The general workflow looks like this:
 
-- Fork redmine on [github] and clone it to your local machine
-- Edit the following files to reference your github/docker account and
-the redmine version:
+- In this repo, edit the following files to reference your github/docker
+account and the redmine version:
   - `install.sh`
   - `prep.sh`
   - `run.sh`
+- Fork redmine on [github] and clone it to your local machine
 - Checkout the branch you want, usually [version]-stable
 - Import the files from my repo:
   - `.gitignore` - allows you to check in important files that Redmine
@@ -85,28 +89,35 @@ github
 
 - Change to this repo's directory
 - Run `prep.sh` to grab a tar of your latest code
-- Start install your code in a new Ruby-only container:
+- Install your code in a new Ruby-only container:
+
     docker run -i -t -v $(pwd):/root -e HOME=/root binaryphile/ruby:2.0.0-p247 /bin/bash
     # cd /root
     # ./install.sh
     # exit
-  This will install your code in the machine, handle directory
+
+  This will install your code in the container, handle directory
   permissions and link key directories to the local filesystem.
 - Commit the new image:
+
     docker ps -a # find the container id that you just ran
     docker commit [id] [your name]/[repo]
+
   I don't recommend tagging custom versions of development since you'll
   always want to pull latest.
 - Remove the old container if you want:
+
     docker rm [id]
+
 - Push your image if you want:
+
     docker push [your name]/[repo]
 
 That's it for creating the image.  Now you can pull that image
 anywhere you want.
 
 If you're just running development mode, follow the basic usage
-instructions above to run the machine.
+instructions above to run the container.
 
 ### Supplying the Database
 
@@ -149,13 +160,13 @@ environment variables defined in `database.yml`:
 - `DB_PASSWORD` - your password
 
 You pass these into the container by setting environment variables
-throuth the docker command line with the `-e` option.  Here's an
+through the docker command line with the `-e` option.  Here's an
 example for an interactive command-line session:
 
     docker run -i -t -v $(pwd):/root -p :3001 -e RAILS_ENV=production -e DB_ADAPTER=postgresql -e DB_DATABASE=redmine -e DB_HOST=localhost -e DB_USERNAME=redmine -e DB_PASSWORD=mypassword [your repo]/redmine /bin/bash
 
 For these to take effect, you _must_ run Redmine in production mode.
-Development is hardcoded to use sqlite in the home directory of the
+Development is hardcoded to use sqlite in the `/root` directory of the
 container.
 
 This command also exposes port 3001 on the host, so be aware of that.
@@ -232,6 +243,130 @@ image.  You can build the image with precompiled assets by adding this
 line after `bundle install` in `install.sh`:
 
     bundle exec rake assets:precompile
+
+## Running Development Code with the Container
+
+Sometimes you'll need to debug production issues with development code,
+or perhaps you just like to run your development in the exact same
+environment as production so there are no surprises upon deployment.
+You can also do testing in a staging environment locally on your
+development machine by using the production container.  There are lots
+of uses.
+
+If you need a true copy of the database along with the PostgreSQL
+server, you'll need to copy those from production or a backup and
+recreate the setup as described above.  Fortunately this shouldn't be
+too hard, that's the entire point and payoff of containerization.
+
+Otherwise you can run in development mode and it should fairly closely
+recreate production, only using sqlite and a test database.
+
+The key is to run the container from the same directory as your
+development code, which will make it visible to the container in
+`/root`.  Just ignore the fact that there's a production copy in
+`/redmine`.
+
+The `run.sh` script should set you up just fine if you are only running
+in development mode, otherwise you'll need to use the same script you
+created to run production.
+
+Once your container is started and the code is in `/root`, just change
+to that directory and run `init.sh` (assuming you need to create the
+sqlite db) and then `bundle exec rails s`.  You can use your browser on
+your host to go to <http://localhost:3000/>.  You can also edit the
+files from the host and the changes will be seen in the container
+automatically and immediately.
+
+Don't forget to discard the container when you're done and go through a
+github commit/push, then build a new image as above.  Since I expect to
+go through many cycles of this process as I deploy, I don't tag these
+images and instead always use latest, which is the default if you don't
+specify a tag.
+
+## A Note About Users and Security
+
+Docker is new and so there isn't a lot of experience with it out there
+to draw on, so don't take my word as gospel, or even rely on it at all.
+I'm concerned about security and the jury is still out on that.
+
+There are three things I'll mention, one is container security in general,
+another is the choice of user which Redmine runs under and, finally, is
+the status of Ubuntu updates in the container.
+
+### Container Security
+
+The Docker folks give some assurances about how secure containers are,
+but they are realistic in that they know new technologies need to
+establish a track record before they can be truly vetted.  Caveat
+emptor, buyer beware.  That said, Docker is based on LXC containers, so
+that's where most of the implications lie.  There are many more folks
+starting to adopt LXC and/or Docker, including Red Hat, so there's at
+least some promise in that regard.  Still, the docker daemon runs as
+root, so should there be issues, the host may be at risk.
+
+That said, the containers themselves serve as a partition which makes
+a separation of concerns/responsibilities.  Compromising an application
+in a container no longer necessarily means getting the run of the host
+machine.  So there's some reason to think containers may be a more
+secure method of deployment than running multiple applications in the
+same host environment.
+
+One thing I'll note is that whenever you run a container in my model,
+
+you're always starting from a "frozen" image.  The old running
+container, if there was one, is discarded.  That means if a container
+has been compromised, the attacker's exploit would be lost whenever a
+new container is run and they would have to compromise your container
+once more.  If you're updating your image with the latest security
+patches, you may actually be able to eject an attacker from what was
+once a compromised system.  It's analogous to taking an image backup of
+a clean system's OS drive and going back to that known-good image
+when a system gets compromised somehow.  It's a good security mechanism.
+
+That presumes the attacker hasn't compromised the container somehow in
+the first place, of course.
+
+### Running as Root
+
+That leads me to the second point, running as root.  While the
+PostgreSQL image doesn't run as root, the Redmine instance does.
+Remember that this is root only within the container.  This is analogous
+to setting up an application account on the host, which normally would
+have full run over anything in the app.  The container performs that
+same isolation for us, so we shouldn't necessarily pay attention to the
+automatic allergic response we've been trained to have about running
+things as root.
+
+You can go a lot more in-depth on security, so I'll suggest you google
+around and/or participate in the mailing list or irc channel for docker.
+
+One good reason to run as root, besides making container configuration
+easier, is that the volume mounting capability of Docker (LXCs?) does no
+user mapping, so created files on the host have the container user's
+uid.  If you use any old uid in the container, they probably won't have
+write permissions to the local directory and writes will fail.  Running
+as root in the container results in files written by root on the local
+filesystem, which while less than optimal is better than failure.
+
+### System Updates
+
+Since the container doesn't run a lot of Ubuntu's normal processes,
+there's less to worry about.  However, there may always be updates which
+affect some of the software you _are_ running in the container.
+
+Ruby and gem updates naturally require you to rebuild the image.
+
+Ubuntu updates should likely be done periodically as well.  I haven't
+included them in this process since I believe you want to do it outside
+the image, when you run a container for the first time.  I suggest as
+part of your initializing the container, you take an additional step of
+running it interactively once to perform system updates, then committing
+that as a new local image and running from it (this is another reason to
+not run from explicit tags).
+
+Updating images other than that method just makes them fatter while
+still needing to be updated again when you deploy them.  That's why I'm
+not a fan of trying to update them before deployment.
 
 [Docker]: http://docker.io/
 [Redmine]: http://www.redmine.org/
