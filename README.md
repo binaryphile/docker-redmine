@@ -89,15 +89,16 @@ github
 
 - Change to this repo's directory
 - Run `prep.sh` to grab a tar of your latest code
-- Install your code in a new Ruby-only container -
+- Install your code in a new Ruby-only container:
 
     docker run -i -t -v $(pwd):/root -e HOME=/root binaryphile/ruby:2.0.0-p247 /bin/bash
     # cd /root
     # ./install.sh
     # exit
 
-  This will install your code in the container, handle directory
-  permissions and link key directories to the local filesystem.
+This will install your code in the container, handle directory
+permissions and link key directories to the local filesystem.
+
 - Commit the new image:
 
     docker ps -a # find the container id that you just ran
