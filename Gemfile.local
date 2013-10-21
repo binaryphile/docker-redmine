@@ -3,3 +3,7 @@ source 'https://rubygems.org'
 # Use unicorn as the app server
 gem 'unicorn', group: :production
 
+gem "mysql2", "~> 0.3.11"
+gem "pg", ">= 0.11.0"
+gem "sqlite3"
+
