@@ -1,8 +1,11 @@
-# Single-serving Redmine Docker image
+# Reusable Redmine Docker image
+
+NOTE: This doc is out of date describing the scripts.  I apologize and
+will rewrite is as soon as I am able.
 
 ## Description
 
-Generates a [Docker] image for [Redmine].
+Generates a [Docker] image of [Redmine].
 
 Before you go building Redmine 2.3-stable, you can use my image by
 running:
@@ -16,9 +19,9 @@ want.
 That image contains a vanilla (no plugins) Redmine 2.3-stable (latest at
 time of writing).  It also includes [unicorn] for production use, but
 you won't need that if you're just taking it out for a spin.  You can
-easily run in development mode, but production mode requires passing in
-db configuration and credentials through environment variables.  See
-below for usage.
+easily run in development mode.  If you plan on running in production,
+you will need to pass in db configuration and credentials through
+environment variables.  See below for usage.
 
 Ruby 2.0.0-p247 and all dependencies are included in the container, so
 running it doesn't require any bundling or software installation.
@@ -30,16 +33,12 @@ container.
 Any modifications to Redmine, including adding plugins, require
 rebuilding the container, which the scripts given here help simplify.
 
-## Basic Usage (Development Mode)
+## Demo (Development Mode)
 
 If you just want to take Redmine out for a test drive, it's simple to
 run this container in Rails' development mode:
 
-    ./run.sh # run on the host, your machine
-    # cd root # now in the container
-    # ./init.sh
-    # cd /redmine
-    # bundle exec rails s
+    ./demo.sh
 
 Then, on your local host, point your web browser at
 <http://localhost:3000/>.  Admin login is `admin`, password `admin`.
@@ -66,9 +65,6 @@ The general workflow looks like this:
 
 - In this repo, edit the following files to reference your github/docker
 account and the redmine version:
-  - `install.sh`
-  - `prep.sh`
-  - `run.sh`
 - Fork redmine on [github] and clone it to your local machine
 - Checkout the branch you want, usually [version]-stable
 - Import the files from my repo:
