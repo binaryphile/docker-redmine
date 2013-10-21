@@ -18,7 +18,7 @@ SOURCE_LIST="-o Dir::Etc::SourceList=$ROOT/sources.list"
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get $SOURCE_LIST update
-apt-get $SOURCE_LIST install -y $SCMS imagemagick libmagickwand-dev libsqlite3-dev
+apt-get $SOURCE_LIST install -y $SCMS imagemagick libmagickwand-dev libsqlite3-dev libmysqlclient-dev libpq-dev
 cp -R $ROOT_SRC $RM_DST
 rm -rf $RM_FILES_DIR
 ln -s $ROOT_FILES_DIR $RM_FILES_DIR

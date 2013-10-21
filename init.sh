@@ -5,7 +5,6 @@ ROOT_FILES_DIR=$ROOT/files
 ROOT_LOG_DIR=$ROOT/log
 RM_DIR=/redmine
 export REDMINE_LANG=en
-export RAILS_ENV=development
 
 mkdir -p $ROOT_FILES_DIR
 mkdir -p $ROOT_LOG_DIR
