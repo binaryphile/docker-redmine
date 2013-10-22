@@ -3,4 +3,5 @@ files/
 log/
 .bash_history
 *.sqlite3
+.viminfo
 
