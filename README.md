@@ -1,8 +1,5 @@
 # Reusable Redmine Docker image
 
-NOTE: This doc is out of date describing the scripts.  I apologize and
-will rewrite is as soon as I am able.
-
 ## Description
 
 Generates a [Docker] image of [Redmine].
@@ -16,6 +13,32 @@ Don't pull without the "2.3-stable" tag since that will be my personal,
 customized redmine for my company's deployment, which is not what you
 want.
 
+To run a demo of Redmine in development mode, run:
+
+    export RM_IMAGE=binaryphile/redmine:2.3-stable
+    ./demo.sh
+
+Then point your browser to http://localhost:3000/.  Admin user is
+"admin", password "admin".  You'll want to change this if the system is
+on an untrusted network.  Port 3000 will be available to the general
+local network unless you configure some sort of firewall.
+
+To run a production server, follow the directions below for setting up a
+database server.  Then run:
+
+    export RM_IMAGE=binaryphile/redmine:2.3-stable
+    export DB_USER=[your db username]
+    export DB_PASS=[your db password]
+    ./initialize-production.sh
+    ./daemon.sh
+
+Then point your browser to http://localhost:3001/.
+
+You may also need to export settings for DB_ADAPTER and DB_DATABASE
+depending on how your database is set up.
+
+## Contents
+
 That image contains a vanilla (no plugins) Redmine 2.3-stable (latest at
 time of writing).  It also includes [unicorn] for production use, but
 you won't need that if you're just taking it out for a spin.  You can
@@ -26,26 +49,16 @@ environment variables.  See below for usage.
 Ruby 2.0.0-p247 and all dependencies are included in the container, so
 running it doesn't require any bundling or software installation.
 
-The container is configured to put logs and Redmine file attachments on
-your local filesystem via mounting the current directory in the
-container.
+The container is configured to put logs, Redmine file attachments and
+the application's secret_token file  on your local filesystem via
+mounting the current directory in the container.
 
 Any modifications to Redmine, including adding plugins, require
 rebuilding the container, which the scripts given here help simplify.
 
-## Demo (Development Mode)
+## Usage
 
-If you just want to take Redmine out for a test drive, it's simple to
-run this container in Rails' development mode:
-
-    ./demo.sh
-
-Then, on your local host, point your web browser at
-<http://localhost:3000/>.  Admin login is `admin`, password `admin`.
-
-## Production/Custom Usage
-
-### Development
+### Development with Redmine (not development mode)
 
 Running a [Rails] app in a Docker container is a bit more involved than
 a regular package, so these instructions are bound to be a little more
