@@ -1,6 +1,7 @@
-redmine-*/
-files/
-log/
+/redmine-*/
+/files/
+/log/
+/config/
 .bash_history
 *.sqlite3
 .viminfo

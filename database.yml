@@ -7,9 +7,9 @@ production:
 
 development:
   adapter: sqlite3
-  database: <%= ENV['HOME'] %>/db/development.sqlite3
+  database: <%= ENV['ROOT'] %>/db/development.sqlite3
 
 test:
   adapter: sqlite3
-  database: <%= ENV['HOME'] %>/db/test.sqlite3
+  database: <%= ENV['ROOT'] %>/db/test.sqlite3
 

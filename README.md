@@ -1,11 +1,11 @@
 # Reusable Redmine Docker image
 
-## Description
+## Before you build
 
 Generates a [Docker] image of [Redmine].
 
-Before you go building Redmine 2.3-stable, you can use my image by
-running:
+You can already use the Redmine image I've created with these scripts by
+cloning this repo and running:
 
     docker pull binaryphile/redmine:2.3-stable
 
@@ -16,6 +16,7 @@ want.
 To run a demo of Redmine in development mode, run:
 
     export RM_IMAGE=binaryphile/redmine:2.3-stable
+    ./initialize-development.sh
     ./demo.sh
 
 Then point your browser to http://localhost:3000/.  Admin user is
@@ -35,7 +36,7 @@ database server.  Then run:
 Then point your browser to http://localhost:3001/.
 
 You may also need to export settings for DB_ADAPTER and DB_DATABASE
-depending on how your database is set up.
+if you want to use MySQL rather than PostgreSQL.
 
 ## Contents
 
@@ -76,8 +77,8 @@ Scripts are included to ease rebuilding the container.
 
 The general workflow looks like this:
 
-- In this repo, edit the following files to reference your github/docker
-account and the redmine version:
+- Export the variables (you can set them in your login rc file (e.g.
+.bashrc)
 - Fork redmine on [github] and clone it to your local machine
 - Checkout the branch you want, usually [version]-stable
 - Import the files from my repo:
@@ -85,7 +86,7 @@ account and the redmine version:
   ignores by default, plus ignore a couple that you'll generate
   - `database.yml` - allows the db to be specified through ENV variables
   - `Gemfile.local` - adds custom gems to the project while avoiding
-possible future merge conflicts in `Gemfile` (you may instead want to
+  possible future merge conflicts in `Gemfile` (you may instead want to
     include your gems in `Gemfile` so you see conflicts when they arise)
   - `unicorn.rb` - configures unicorn for production, 2 workers by
   default
