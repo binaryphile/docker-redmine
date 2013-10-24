@@ -11,8 +11,7 @@
 : ${CMD=$ROOT/install.sh}
 : ${SUDO=""} # change to "sudo" if you aren't in the docker group
 
-if [ ! -d "$RM_BRANCH" ]; then
-  curl $RM_URL | tar -zxvf -
-fi
+rm -rf $RM_BRANCH
+curl $RM_URL | tar -zxvf -
 $SUDO docker run $OPTIONS $RM_BASE $CMD
 

@@ -5,7 +5,7 @@
 
 : ${ROOT=/root}
 : ${SCMS="git mercurial"}
-: ${PREREQS="$SCMS imagemagick libmagickwand-dev libsqlite3-dev libmysqlclient-dev libpq-dev"} 
+: ${PREREQS="$SCMS imagemagick libmagickwand-dev libsqlite3-dev libmysqlclient-dev libpq-dev postgresql-client mysql-client"} 
 : ${ROOT_SRC=$ROOT/redmine-$RM_VERSION-stable}
 : ${RM_DST=/redmine}
 : ${RM_CONF_DIR=$RM_DST/config}
@@ -27,6 +27,7 @@ ln -s $ROOT_FILES_DIR $RM_FILES_DIR
 rm -rf $RM_LOG_DIR
 ln -s $ROOT_LOG_DIR $RM_LOG_DIR
 ln -s $ROOT/config/initializers/secret_token.rb $RM_DST/config/initializers/secret_token.rb
+ln -s $ROOT/.env $RM_DST/.env
 mkdir -p $RM_PIASSETS_DIR
 mkdir -p $U_PID_DIR
 cd $RM_DST

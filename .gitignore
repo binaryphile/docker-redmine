@@ -5,4 +5,6 @@
 .bash_history
 *.sqlite3
 .viminfo
+.env
+.psql_history
 
