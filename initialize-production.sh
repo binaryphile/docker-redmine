@@ -3,6 +3,8 @@
 : ${RM_IMAGE?"need to set image name IMAGE, see README.md"}
 : ${DB_USER?"need to set database username DB_USER, see README.md"}
 : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
+: ${SU_USER?"need to set database superuser name SU_USER, see README.md"}
+: ${SU_PASS?"need to set database superuser password SU_PASS, see README.md"}
 
 : ${ROOT=/root}
 : ${RAILS_ENV=production}

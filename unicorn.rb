@@ -1,6 +1,6 @@
 APP_ROOT = "/redmine"
 
-worker_processes ENV["U_WORKERS"] || 2
+worker_processes ENV["U_WORKERS"].to_i || 2
 working_directory APP_ROOT
 
 timeout 180
