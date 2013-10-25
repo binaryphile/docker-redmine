@@ -1,7 +1,9 @@
 #!/bin/sh
 : ${RM_IMAGE?"need to set image name IMAGE, see README.md"}
+if [ ! -f ".env" ]; then
 : ${DB_USER?"need to set database username DB_USER, see README.md"}
 : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
+fi
 
 : ${ROOT=/root}
 : ${DB_ADAPTER=postgresql}
