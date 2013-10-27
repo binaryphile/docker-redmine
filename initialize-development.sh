@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -f .env ]; then
+  source .env
+fi
+
 : ${RM_IMAGE?"need to set image name IMAGE, see README.md"}
 
 : ${ROOT=/root}

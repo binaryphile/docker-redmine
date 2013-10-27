@@ -1,4 +1,9 @@
 #!/bin/bash
+
+if [ -f .env ]; then
+  source .env
+fi
+
 : ${RM_IMAGE?"need to set redmine image RM_IMAGE, see README.md"}
 
 : ${ROOT=/root}

@@ -26,6 +26,6 @@ if [ "$RAILS_ENV" == "production" ]; then
   psql template1 <<< "CREATE ROLE $DB_USER LOGIN ENCRYPTED PASSWORD '$DB_PASS' NOINHERIT VALID UNTIL 'infinity';"
   psql template1 <<< "CREATE DATABASE $DB_USER WITH ENCODING='UTF8' OWNER=$DB_USER;"
 fi
-bundle exec rake db:migrate
-bundle exec rake redmine:load_default_data
+#bundle exec rake db:migrate
+#bundle exec rake redmine:load_default_data
 

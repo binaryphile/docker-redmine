@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -f .env ]; then
+  source .env
+fi
+
 : ${GH_USER?"need to set github user GH_USER, see README.md"}
 : ${RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
 : ${RM_BASE?"need to set base image RM_BASE, see README.md"}

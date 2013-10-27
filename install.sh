@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 : {GH_USER?"need to set github user GH_USER, see README.md"}
 : {RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
