@@ -19,7 +19,7 @@ To run a demo of Redmine in development mode, run:
     ./initialize-development.sh
     ./demo.sh
 
-Then point your browser to http://localhost:3000/.  Admin user is
+Then point your browser to <http://localhost:3000/>.  Admin user is
 "admin", password "admin".  You'll want to change this if the system is
 on an untrusted network.  Port 3000 will be available to the general
 local network unless you firewall it.
@@ -87,7 +87,8 @@ The general workflow looks like this:
   - `_.gitignore` - copy to `.gitignore`
     - allows you to check in important files that Redmine ignores by
     default, plus ignore a couple that you'll generate
-  - `database.yml` - allows the db to be specified through ENV variables
+  - `database.yml` - copy to `config/database.yml`, allows the db to be
+  specified through ENV variables
     - production:
       - DB_ADAPTER - the adapter as would be specified in `database.yml`
       - DB_DATABASE - the name of the database, e.g. "redmine"
@@ -101,15 +102,17 @@ The general workflow looks like this:
     use this
     - if you want to see any potential conflicts, use `Gemfile` directly
     include your gems in `Gemfile` so you see conflicts when they arise)
-  - `unicorn.rb` - configures unicorn for production
+  - `unicorn.rb` - copy to `config/unicorn.rb` configures unicorn for
+    production
     - 2 workers by default, settable with the U_WORKERS variable
-  - `sample.env` - copy to `.env` and set the variables there so you
-  don't have to set them in every new shell instance
+- In this repo (not redmine), copy `sample.env` to `.env` and set the
+variables there so you don't have to set them in every new shell
+instance
 - Do your development as you would usually, running dev on your local
 machine
 - When your code is ready to be built into an image, commit and push
 your branch to github
-  - the `create-image.sh` script will automatically download the latest
+  - the image creation script will automatically download the latest
   commit in your branch
 
 ### Building the Image
@@ -117,6 +120,7 @@ your branch to github
 - Change to this repo's directory
 - Set RM_BASE to your base ruby image (e.g.
     `binaryphile/ruby:2.0.0-p247` using `export` or in `.env`.
+- Set GH_USER to your github username
 - Create the image:
 
 ```
@@ -152,9 +156,6 @@ docker push [your name]/[repo]
 That's it for creating the image.  Now you can pull that image anywhere
 you want.
 
-If you're just running development mode, follow the basic usage
-instructions above to run the container.
-
 ### Things to Know About the Image
 
 The idea here is to provide you with a truly reusable container.  Yes,
@@ -165,6 +166,10 @@ than once, but that means two important things:
 production, so long as there is no confidential information in the code.
 - The image can be replaced or upgraded without having to export your
 state data and config.
+- To rerun the app, you don't have to restart a container.  You just
+discard the last container you ran and re-run the from the image using
+`docker run` (via the `daemon.sh` script).  Every time you run is a
+fresh, known codebase from the image.
 
 Assuming you don't have any confidential code in your app, you can share
 the image publicly because we've taken all of the configuration and
@@ -215,7 +220,15 @@ Once you've gotten the PostgreSQL database initialized using the
 instructions from my other repo, run it as a daemon on port 5432.  Note
 that it will be exposed to the network on the host.
 
-In this repo, run:
+In this repo, set the variables:
+
+- **RM_IMAGE** - your Redmine image in standard docker syntax
+- **DB_USER** - the redmine user in the database
+- **DB_PASS** - the redmine user's password
+- **SU_USER** - the database superuser
+- **SU_PASS** - the superuser's password
+
+Then run:
 
     ./initialize-production.sh
 
@@ -239,14 +252,14 @@ First run the PostgreSQL container so it's available and exposed on port
 For Redmine to know about the database, you'll need to pass in the
 environment needed by `database.yml`:
 
-- `DB_ADAPTER` - the adapter for your database system, should be
+- **DB_ADAPTER** - the adapter for your database system, should be
 `postgresql`
-- `DB_DATABASE` - the database name, usually `redmine`
-- `DB_HOST` - `localhost` in this case
-- `DB_USERNAME` - the user you configured, usually `redmine`
-- `DB_PASSWORD` - your password
+- **DB_DATABASE** - the database name, usually `redmine`
+- **DB_HOST** - `localhost` in this case
+- **DB_USERNAME** - the user you configured, usually `redmine`
+- **DB_PASSWORD** - your password
 
-
+Run:
 
     ./daemon.sh
 
