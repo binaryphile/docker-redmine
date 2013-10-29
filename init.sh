@@ -16,7 +16,7 @@ cd $RM_DIR
 if [ ! -f "$ROOT_SECRET_DIR/secret_token.rb" ]; then
   bundle exec rake generate_secret_token
 fi
-if [ ! -v RAILS_ENV ]; then
+if [ ! -v RAILS_ENV ] || [ "$RAILS_ENV" == "development" ] && [ -f "$ROOT_DB_DIR/development.sqlite3" ]; then
   rm $ROOT_DB_DIR/development.sqlite3
 fi
 if [ "$RAILS_ENV" == "production" ]; then
@@ -26,6 +26,6 @@ if [ "$RAILS_ENV" == "production" ]; then
   psql template1 <<< "CREATE ROLE $DB_USER LOGIN ENCRYPTED PASSWORD '$DB_PASS' NOINHERIT VALID UNTIL 'infinity';"
   psql template1 <<< "CREATE DATABASE $DB_USER WITH ENCODING='UTF8' OWNER=$DB_USER;"
 fi
-#bundle exec rake db:migrate
-#bundle exec rake redmine:load_default_data
+bundle exec rake db:migrate
+bundle exec rake redmine:load_default_data
 
