@@ -316,6 +316,13 @@ line after `bundle install` in `install.sh`:
 
     bundle exec rake assets:precompile
 
+## Running Development Code without the Image
+
+Because `database.yml` reads from the environment, you will have to at
+least set `ROOT` to point to your current directory for the Redmine
+source code.  That's the only variable necessary to run Redmine in
+development mode on your local machine.
+
 ## Running Development Code with the Image
 
 Sometimes you'll need to debug production issues with development code,
