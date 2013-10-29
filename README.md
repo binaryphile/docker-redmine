@@ -84,7 +84,7 @@ The general workflow looks like this:
 - Fork [redmine on github] and clone it to your local machine
 - Checkout the branch you want, usually [version]-stable
 - Copy the files from my repo into the redmine repo:
-  - `_.gitignore` - copy to `.gitignore`
+  - `sample.gitignore` - copy to `.gitignore`
     - allows you to check in important files that Redmine ignores by
     default, plus ignore a couple that you'll generate
   - `database.yml` - copy to `config/database.yml`, allows the db to be
