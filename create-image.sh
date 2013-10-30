@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -f .env ]; then
+if [ -e .env ]; then
   source .env
 fi
 
@@ -13,7 +13,6 @@ fi
 : ${ROOT=/root}
 : ${OPTIONS="-i -t -v $(pwd):$ROOT -w $ROOT -e ROOT=$ROOT -e RM_VERSION=$RM_VERSION -e GH_USER=$GH_USER"}
 : ${CMD=$ROOT/install.sh}
-: ${SUDO=""} # change to "sudo" if you aren't in the docker group
 
 rm -rf $RM_BRANCH
 curl $RM_URL | tar -zxvf -
