@@ -1,11 +1,10 @@
 #!/bin/bash
 
-: {GH_USER?"need to set github user GH_USER, see README.md"}
 : {RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
 
 : ${ROOT=/root}
 : ${SCMS="git mercurial"}
-: ${PREREQS="$SCMS imagemagick libmagickwand-dev libsqlite3-dev libmysqlclient-dev libpq-dev postgresql-client mysql-client"} 
+: ${PREREQS="$SCMS imagemagick libmagickwand-dev libsqlite3-dev libmysqlclient-dev libpq-dev postgresql-client mysql-client"}
 : ${ROOT_SRC=$ROOT/redmine-$RM_VERSION-stable}
 : ${RM_DST=/redmine}
 : ${RM_CONF_DIR=$RM_DST/config}
