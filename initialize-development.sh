@@ -1,16 +1,17 @@
 #!/bin/bash
 
-if [ -f .env ]; then
+if [ -e .env ]; then
   source .env
 fi
 
 : ${RM_IMAGE?"need to set image name IMAGE, see README.md"}
 
 : ${ROOT=/root}
-: ${CMD=$ROOT/init.sh}
 : ${RM_DIR=/redmine}
-: ${OPTIONS="-i -t -w $RM_DIR -v $(pwd):$ROOT -e ROOT=$ROOT"}
-: ${SUDO=""} # set to "sudo" if you are not in the docker group
+: ${OPTIONS="-i -t -w $ROOT -v $(pwd):$ROOT -e ROOT=$ROOT -e RM_DIR=$RM_DIR"}
 
-$SUDO docker run $OPTIONS $RM_IMAGE $CMD
+$SUDO docker run $OPTIONS $RM_IMAGE $ROOT/internal/init_host.sh
+$SUDO docker run $OPTIONS $RM_IMAGE $ROOT/internal/init_db.sh
+$SUDO docker run $OPTIONS $RM_IMAGE $ROOT/internal/load_default.sh
+$SUDO docker run $OPTIONS $RM_IMAGE $ROOT/internal/migrate.sh
 

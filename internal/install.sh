@@ -1,10 +1,12 @@
 #!/bin/bash
 
+if [ -e .env ]; then
+  source .env
+fi
+
 : {RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
 
 : ${ROOT=/root}
-: ${SCMS="git mercurial"}
-: ${PREREQS="$SCMS imagemagick libmagickwand-dev libsqlite3-dev libmysqlclient-dev libpq-dev postgresql-client mysql-client"}
 : ${ROOT_SRC=$ROOT/redmine-$RM_VERSION-stable}
 : ${RM_DST=/redmine}
 : ${RM_CONF_DIR=$RM_DST/config}
@@ -14,12 +16,8 @@
 : ${ROOT_LOG_DIR=$ROOT/log}
 : ${RM_PIASSETS_DIR=$RM_DST/public/plugin_assets}
 : ${U_PID_DIR=$RM_DST/pids}
-: ${SOURCE_LIST="-o Dir::Etc::SourceList=$ROOT/sources.list"}
-export DEBIAN_FRONTEND=noninteractive
 
-apt-get $SOURCE_LIST update
-apt-get $SOURCE_LIST install -y $PREREQS
-apt-get clean
+rm -rf $RM_DST
 cp -R $ROOT_SRC $RM_DST
 rm -rf $RM_FILES_DIR
 ln -s $ROOT_FILES_DIR $RM_FILES_DIR

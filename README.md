@@ -1,5 +1,7 @@
 # Reusable Redmine Docker image
 
+Master is currently broken while being refactored.  Please use tag 0.1.
+
 Generates a [Docker] image of [Redmine].
 
 ## Before you build
@@ -9,9 +11,9 @@ cloning this repo and running:
 
     docker pull binaryphile/redmine:2.3-stable
 
-Don't pull without the "2.3-stable" tag since that will be my personal,
-customized redmine for my company's deployment, which is not what you
-want.
+Don't pull without the "2.3-stable" tag since "latest" will be my
+personal, customized redmine for my company's deployment, which is not
+what you want.
 
 To run a demo of Redmine in development mode, run:
 
@@ -24,6 +26,8 @@ Then point your browser to <http://localhost:3000/>.  Admin user is
 on an untrusted network.  Port 3000 will be available to the general
 local network unless you firewall it.
 
+To stop it, run `docker ps` and find the id, then `docker stop [id]`.
+
 To run a production server, follow the directions below for setting up a
 PostgreSQL database server.  Then run:
 
@@ -35,21 +39,23 @@ PostgreSQL database server.  Then run:
 
 Then point your browser to <http://localhost:3001/>.
 
-You may also need to export settings for DB_ADAPTER if you want to use
+You will also need to export settings for DB_ADAPTER if you want to use
 MySQL rather than PostgreSQL.
 
 You may also set your environment variables by copying `sample.env` to
-`.env` and editing with your values.  `.env` is automatically called by
-the other scripts if it exists.
+`.env` and editing with your values.  `.env` is already in `.gitignore`,
+which makes it unlikely you'll accidentally commit any passwords.
+`.env` is automatically called by the other scripts if it exists.
 
 ## Contents
 
-That image contains a vanilla (no plugins) Redmine 2.3-stable, the
-latest at the time of this writing.  It also includes [unicorn] for
+The 2.3-stable image contains a vanilla (no plugins) Redmine 2.3-stable,
+the latest at the time of this writing.  It also includes [unicorn] for
 production use, but you won't need that if you're just taking it out for
-a spin.  You can easily run in development mode.  If you plan on running
-in production, you will need to pass in db configuration and credentials
-through environment variables or the `.env` file.  See below for usage.
+a spin.  You can run in development mode just as easily.  If you plan on
+running in production, you will need to pass in db configuration and
+credentials through environment variables or the `.env` file.  See below
+for usage.
 
 Ruby 2.0.0-p247 and all dependencies are included in the container, so
 running it doesn't require any bundling or software installation.
@@ -59,16 +65,16 @@ the application's secret_token file on your local filesystem via
 mounting the current directory in the container.
 
 Any modifications to Redmine, including plugins, require rebuilding the
-container which the scripts given here help simplify.
+container.  The scripts here help simplify that quite a bit.
 
 ## Usage
 
 ### Development with Redmine (as in coding not just development mode)
 
 Running a [Rails] app in a Docker container is a bit more involved than
-a regular package.  Usually you want the ability to modify and extend
-Rails apps with plugins, for example.  This means that the source of the
-app is changing, and Docker tends to freeze your app in place.
+your typical Ubuntu package.  Usually you want the ability to modify and
+extend Rails apps with plugins, for example.  This means that the source
+of the app is changing, and Docker tends to freeze your app in place.
 
 Rather than try to keep the source code for the app outside the
 container, the container is set up so you maintain your source in a
