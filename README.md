@@ -1,8 +1,9 @@
 # Reusable Redmine Docker image
 
-Master is currently broken while being refactored.  Please use tag 0.1.
-
 Generates a [Docker] image of [Redmine].
+
+Note: the master branch may occasionally break.  If it doesn't work and
+you can't figure out what's going on, use the latest tag instead.
 
 ## Before you build
 
@@ -69,227 +70,248 @@ container.  The scripts here help simplify that quite a bit.
 
 ## Usage
 
-### Development with Redmine (as in coding not just development mode)
+If you just want to play with Redmine as a demo, follow the directions
+above.
 
-Running a [Rails] app in a Docker container is a bit more involved than
-your typical Ubuntu package.  Usually you want the ability to modify and
-extend Rails apps with plugins, for example.  This means that the source
-of the app is changing, and Docker tends to freeze your app in place.
+### Working with the Redmine Code
 
-Rather than try to keep the source code for the app outside the
-container, the container is set up so you maintain your source in a
-version control system ([git]) and rebuild your container when you want
-to update the app for production.  Usually you would do development
-locally without using the container, but you can certainly mount your
-dev code so it runs in the exact same environment as production.
-Scripts are included to ease rebuilding the container.
+If you want to deploy a Redmine server, there are a few steps you need
+to take to make your code friendly to this Docker image.
 
-The general workflow looks like this:
+The workflow goes like this: first you clone Redmine if you haven't
+already.  Then you decide on the branch you want.  I suggest
+[latest]-stable.
 
-- Export the variables (you can also set them in your .env file)
-- Fork [redmine on github] and clone it to your local machine
-- Checkout the branch you want, usually [version]-stable
-- Copy the files from my repo into the redmine repo:
-  - `sample.gitignore` - copy to `.gitignore`
-    - allows you to check in important files that Redmine ignores by
-    default, plus ignore a couple that you'll generate
-  - `database.yml` - copy to `config/database.yml`, allows the db to be
-  specified through ENV variables
-    - production:
-      - DB_ADAPTER - the adapter as would be specified in `database.yml`
-      - DB_DATABASE - the name of the database, e.g. "redmine"
-      - DB_USER - the regular database user, not the superuser
-      - DB_PASS - the regular database user's password
-    - development:
-      - ROOT - should be set to the location that is mounted in the
-      container from your local filesystem
-  - `Gemfile.local` - adds custom gems to the project
-    - to avoid merge conflicts with future changes in `Gemfile`, you can
-    use this
-    - if you want to see any potential conflicts, use `Gemfile` directly
-    include your gems in `Gemfile` so you see conflicts when they arise)
-  - `unicorn.rb` - copy to `config/unicorn.rb` configures unicorn for
-    production
-    - 2 workers by default, settable with the U_WORKERS variable
-- In this repo (not redmine), copy `sample.env` to `.env` and set the
-variables there so you don't have to set them in every new shell
-instance
-- Do your development as you would usually, running dev on your local
-machine
-- When your code is ready to be built into an image, commit and push
-your branch to github
-  - the image creation script will automatically download the latest
-  commit in your branch
+Clone your repo to your local machine.  Then switch to your chosen
+branch.  Here's where you'll be customizing things for the image.
 
-### Building the Image
+The files in the templates directory in this repo are meant to go into
+your branch.  They do a couple things:
 
-- Change to this repo's directory
-- Set RM_BASE to your base ruby image (e.g.
-    `binaryphile/ruby:2.0.0-p247` using `export` or in `.env`.
-- Set GH_USER to your github username
-- Create the image:
+- Add/remove git ignores for files that are normally part of deployments
+such as `schema.rb`.  Diff with the Redmine version for details.
+- Fetch database credentials from environment variables in
+`database.yml`.  This allows you to commit the file without compromising
+security.
+- Add the `dotenv` gem so envrionment variables can be read from a file
+in the root of the deployment.
+- Add the `mysql2`, `pg` and `sqlite3` gems in `Gemfile.local` so the
+container is database-neutral.
+- Configure [unicorn] with a `unicorn.rb` file.
 
-```
-./create-image.sh
-```
+Here's the map of where these files go:
 
-This will install your code in the container, handle directory
-permissions and link key directories to the local filesystem.
+- `database.yml`: `/config/database.yml`
+- `Gemfile.local`: `/Gemfile.local`
+- `sample.gitignore`: `/.gitignore`
+- `unicorn.rb`: `/config/unicorn.rb`
 
-- Commit the new image:
+Once you have these files in your repo, commit and push.
 
-```
-docker ps -a # find the container id that you just ran
-docker commit [id] [your name]/[repo]
-```
+While you're developing, you'll be doing normal Rails development on
+your local machine, not in the container (there are instructions for how
+to do development in the container later in this document).
 
-  I don't recommend tagging.  For custom versions of your development
-  you'll always want to pull the default latest, which doesn't carry a
-  tag.
+Because `database.yml` constructs the path to the development database
+with the ROOT environment variable, you'll need to set that variable to
+your project's home.  The easiest way to do that is to create a file
+called `.env` in the project's root and set it there using normal shell
+syntax such as `export ROOT=/my/project/dir`.  The `dotenv` gem will
+pick this up and put it in your environment whenever you run Rails, so
+you don't have to source the file.
 
-- (optional) Remove the old container:
+To run development on your local machine, you'll just follow the typical
+Redmine steps.  I won't list those here.  When you're ready to deploy,
+just make sure you've got all of the files you need checked in,
+including plugins, `Gemfile.lock` and `schema.rb` (which is generated
+every time you migrate).
 
-```
-docker rm [id]
-```
+### Creating an Image with your Code
 
-- (optional) Push your image:
+Since your Redmine source is essentially what makes the image what it
+is, you'll need to rebuild the image.
 
-```
-docker push [your name]/[repo]
-```
+If you're using 2.3-stable, the fastest way to rebuild it is to base it
+off my 2.3-stable tag, since that already has all of the prereq Ubuntu
+packages as well as most of the gems you'll need pre-bundled.  You'll
+just need your code added in as well as to `bundle install` again.
+You'll only need to `bundle install` since `Gemfile.lock` will already
+have the appropriate versions of the gems locked in for you.
 
-That's it for creating the image.  Now you can pull that image anywhere
-you want.
+You'll end up with a new image that can be deployed to production.
+Since your production database will still need to be migrated in some
+cases, you'll want to do the migrations in that environment.  We'll get
+into that in a moment.  Just know that since the database is outside of
+the image, you won't need to run migrations to create the updated image.
 
-### Things to Know About the Image
+Also, if you're not building off my image, you'll need to create your
+own, which I'll get to below.
 
-The idea here is to provide you with a truly reusable container.  Yes,
-it's only reusable insofar that you want to run the exact same code more
-than once, but that means two important things:
+Once your code is pushed to github, you'll want to come back from your
+source directory to this project's directory.  Back here, you'll be
+running the `create.sh` script to download your code into an image and
+run bundler.  The script will handle both steps for you.  You just need
+to copy `sample.env` to `.env`, then set RM_BASE, RM_VERSION and GH_USER
+appropriately in the new file.  Since you're using my image, RM_BASE is
+fine as `binaryphile/redmine:2.3-stable`.  GH_USER should be set to your
+github username, and RM_VERSION should be `2.3`.
 
-- The image can be shared publicly, even if intended for use in
-production, so long as there is no confidential information in the code.
-- The image can be replaced or upgraded without having to export your
-state data and config.
-- To rerun the app, you don't have to restart a container.  You just
-discard the last container you ran and re-run the from the image using
-`docker run` (via the `daemon.sh` script).  Every time you run is a
-fresh, known codebase from the image.
+The copy of your source code which will be copied into your image will
+be a raw tar of your latest committed code in that branch, not a git
+checkout.  You don't need the added weight of a (large) repo like
+Redmine's just to run your code.
 
-Assuming you don't have any confidential code in your app, you can share
-the image publicly because we've taken all of the configuration and
-state data, including credentials, out of the container.  Most notably,
-that means:
+The script will also take care of linking a few files to the volume that
+will come from your local filesystem, things like the attachments
+directory, logs, etc.  In particular, it will link your
+`secret_token.rb` file to the outside, since that file is particularly
+sensitive (like `database.yml`).  Make sure you aren't checking that
+file into git.  If you're using my sample gitignore file, that should be
+taken care of for you already.
 
-- `config/database.yml` receives database credentials from the
-environment (using the `dotenv` gem, see below)
-- `config/initializers/secret_token.rb` is symlinked to a file of the
-same name outside the container
-- the file attachments directory for Redmine is symlinked to a folder
-outside the container
-- the log directory is symlinked to a folder outside the container
-- the development database (sqlite3) is written outside the container
-- the environment variable file `.env` is symlinked to a file outside
-the container
+Finally, the script will run `bundle install --without test`.  I'm
+debating whether to turn on the production flag, but for now it's just
+without test.  This means you'll be able to run Redmine in either
+production or development mode.
 
-All of these files/directories will be in the directory of this repo, or
-wherever you decide to run the scripts from.
+So go ahead and run `./create.sh` once you have `.env` sorted out.  It
+should be very fast and you'll just see the code being unpacked and
+bundler running.
 
-[dotenv] is also included in the image by default.  It's a simple gem
-that allows Rails apps to get their environment read from a file named
-`.env` in the root of the project.  You don't have to use the `.env`
-file, but it is recommended since reportedly some systems can expose the
-environment variables fed to a process.  dotenv instead loads the
-variables directly from the file once the app has started, which should
-protect them from prying eyes.  Make sure your security on the file is
-adequate.
+When it's done, you'll have an exited container in your `docker ps`
+output.  It's up to you to commit this container as an image and
+optionally push to the index.  If you've followed my directions and
+there is no confidential information in your code, you can safely push
+to the public index since the image will have no confidential or
+stateful information inside.
 
-The image also comes with Mercurial and Git installed by default for use
-with Redmine's source control features.
+Run `docker ps` to determine the id of the container, then `docker
+commit [id] [your index id]/redmine`.  I don't suggest tagging it, since
+your latest should always be the latest customized version of yours.
+Only tag images that should be reusable to someone else or in some other
+way (such as a build with prereqs installed).
 
-Redmine will be configured to run as root in the image.
+Finally, `docker push [your index id]/redmine` if you want to make the
+image available.
 
-The necessary file permissions for the directories mentioned in
-Redmine's installation docs will also be taken care of.
+### Deploying your Image for the First Time
 
-### Supplying the Database
+If you're deploying for the first time without a preexisting database,
+you'll need to set one up in your production environment.  The image
+will connect to PostgreSQL running on the default port **on the Docker
+host**.
 
-To run production for the first time, you'll need to make some decisions
-about deployment.  This image should work with both MySQL and
-PostgreSQL.  I haven't tested MySQL.
+That's an entirely separate exercise, although I can point you to my
+PostgreSQL image at <https://github.com/binaryphile/docker-pgsql>.
+You'll need your database server to have a running database with a
+superuser, but you don't have to create the redmine database or user, my
+scripts will do that.  You'll only need to configure the redmine and
+superuser credentials into `.env`.
 
-To run with PostgreSQL, you'll need an instance.  You can find
-instructions for mine at <https://github.com/binaryphile/docker-pgsql>.
+You can run with a MySQL database by changing the database adapter in
+the `.env` file on your production machine.  I haven't tried this and
+don't have any further help for you there.
 
-Once you've gotten the PostgreSQL database initialized using the
-instructions from my other repo, run it as a daemon on port 5432.  Note
-that it will be exposed to the network on the host.
+The first thing to do is to clone this repository to your production
+machine, the Docker host.  Then copy `sample.env` to `.env`.  `.env`
+already appears in the git ignores, so you won't check in any sensitive
+information accidentally.
 
-In this repo, set the variables:
+Edit `.env` and add your image's name as RM_IMAGE, your database
+superuser credentials as SU_NAME and SU_PASS and your desired redmine
+user as DB_USER and DB_PASS.  The rest of the variables can stay
+default.
 
-- **RM_IMAGE** - your Redmine image in standard docker syntax
-- **DB_USER** - the redmine user in the database
-- **DB_PASS** - the redmine user's password
-- **SU_USER** - the database superuser
-- **SU_PASS** - the superuser's password
+Presuming your PostgreSQL database is running on the docker host on the
+default port, you're ready to initialize the database and the host
+environment.  This involves creating the redmine user and database,
+creating the expected files on the local filesystem, initializing your
+secret token and populating the database with the schema and default
+Redmine data.
 
-Then run:
+Run `./initialize-production.sh`.  It will take care of everything,
+including downloading your image.  Note that it will run the container a
+few times as it does different steps, so you'll see Dockers DNS warnings
+more than once.  These can be ignored.
 
-    ./initialize-production.sh
+Once it's done, you can verify that it's working by running
+`./daemon.sh`, which will start unicorn on port 3001 on the host.  Point
+your browser at the production server, such as
+http://[yourserver.com]:3001/.
 
-This will run [Redmine's installation process] which will create a
-Redmine user and database and will also run the migrations and install
-the default data.
+If it works, you're golden.  If not, see if the container is running
+with `docker ps`.  If so, stop it with `docker stop [id]`.  You can try
+debugging with `./interactive.sh`, which will open a prompt inside the
+container.  You will need to set RAILS_ENV to production once you're
+inside the container since `interactive.sh` defaults to development
+mode.
 
-### Running the containers
+### Stopping and Starting the Container
 
-You'll probably want to run the database and Redmine containers on the
-same host as each other.  Test it out first on your own machine, but if
-you're looking to put them into production, you'll want to clone or copy
-both the [docker-pgsql] and [docker-redmine] repos to your production
-machine so these scripts are available.  Running them either on your
-local machine or the production host takes the same process described
-here.
+Since all of the state is kept outside the container, you should start
+it with `daemon.sh`, which spawns a new container from the image every
+time by using the docker run command.
 
-First run the PostgreSQL container so it's available and exposed on port
-5432, if it's not already running.
+You should not need to use the docker start command to restart a
+container.
 
-For Redmine to know about the database, you'll need to pass in the
-environment needed by `database.yml`:
+To stop a container, look up its id with `docker ps` and stop it with
+`docker stop [id]`.
 
-- **DB_ADAPTER** - the adapter for your database system, should be
-`postgresql`
-- **DB_DATABASE** - the database name, usually `redmine`
-- **DB_HOST** - `localhost` in this case
-- **DB_USERNAME** - the user you configured, usually `redmine`
-- **DB_PASSWORD** - your password
+Old containers are disposable and can be removed with `docker rm [id]`.
+If no containers are currently running, you can remove them all with the
+command `docker rm $(docker ps -a -q)`.
 
-Run:
+### Deploying an Upgraded Image
 
-    ./daemon.sh
+When you need to deploy another version of your code, you'll follow the
+same process as you did to build it in the first place.  On your local
+machine, you'll commit and push your code to github, run `./create.sh`,
+using `binaryphile/redmine:2.3-stable` as RM_BASE.  Then you'll commit
+as latest (no tag) and push to the index.
 
-This command exposes port 3001 on the host, so be aware of that.
+Once have the image ready, go to the deployment machine and the
+directory for this repo.  This time, you only need to stop the old
+container, pull the new one and optionally run migrations.
 
-This is the moment of truth, you should now be able to do a `docker ps`
-and see both containers running.
+Use `docker ps` and `docker stop [id]` to stop the old container.  Then
+run `docker pull [your index id]/redmine`.  That should pull your latest
+version.
 
-Verify that the container is running and test by pointing a browser at
-port 3001.
+If you have new migrations to run (say, you've added a plugin that
+requires them), then you'll run `./migrate.sh`.
 
-Congrats, you have it running in production.
+If you don't have any migrations to run, or once you've run them, then
+you can simply start the new version with `./daemon.sh`.
+
+That should cover all of your typical usage of the images.
+
+## Other Deployment Considerations
+
+### A Note on Unicorn
+
+Unicorn is used for production because it easily allows multiple worker
+processes to run behind a single application server port.
+
+You can use the `.env` variable U_WORKERS to set the number of worker
+processes.  Usually you'll want it set to the number of CPUs on the host
+machine.  If not set explicitly it will default to 2 in my setup.  Even
+if you have one processor, I suggest you have at least 2 worker
+processes.
+
+A unicorn feature which containers render useless is the hot-upgrade
+behavior.  Since unicorn is inside the container, when you upgrade the
+container you have to stop unicorn completely.  There isn't a comparable
+feature in my setup here, but you can certainly investigate [hipache],
+which is the Docker company's project for orchestrating container
+upgrades, among other features.
 
 ### Running a Proxy Server
 
-Unicorn is certainly capable of running on port 80, and you can use it
-directly by changing all of the instances of port 3001 on the command
-line above.
-
-However, if you want to run other websites from the same host or to run
-with SSL, you'll want a proxy server such as Apache, nginx or even IIS
-to front unicorn.  I don't have such a container made for you, nor do I
-have the instructions on how to do so since that's a whole other ball of
-wax.
+If you want to run other websites from the same host or to run with SSL,
+you'll want a proxy server such as Apache, nginx or even IIS to front
+unicorn.  I don't have such a container made for you, nor do I have the
+instructions on how to do so since that's a whole other ball of wax.
 
 ### Integrating the Containers as a Service on the Host
 
@@ -321,13 +343,6 @@ image.  You can build the image with precompiled assets by adding this
 line after `bundle install` in `install.sh`:
 
     bundle exec rake assets:precompile
-
-## Running Development Code without the Image
-
-Because `database.yml` reads from the environment, you will have to at
-least set `ROOT` to point to your current directory for the Redmine
-source code.  That's the only variable necessary to run Redmine in
-development mode on your local machine.
 
 ## Running Development Code with the Image
 
@@ -455,6 +470,69 @@ just make them fatter without preventing the need to upgrade on deploy
 anyway.  That's why I'm not a fan of trying to update them before
 deployment.
 
+## Recreating the Images for Other Redmine Versions
+
+If you are building another version of Redmine, or if you need other
+underlying prerequisites (ubuntu, ruby, imagemagick, etc.),  you can
+rebuild the underlying images using these scripts.
+
+I built them as a stack of four layers:
+
+- ubuntu:precise - the stock image from Docker, Inc.
+- binaryphile/ruby:2.0.0-p247 - a ruby 2.0 install from source
+- binaryphile/redmine:2.3-prereqs - all of the prerequisite Ubuntu
+packages including SCM and database adapters
+- binaryphile/redmine:2.3-stable - a stock Redmine 2.3-stable clone with
+just the adaptations to make it work in an image
+
+I recommend using the same stacking approach, as each layer greatly
+speeds working on the next.  I won't go into much depth, but you can
+remake them yourself with these directions:
+
+### Base Box
+
+Just choose one of the other boxes from Docker.
+
+### Ruby
+
+Find directions for building a Ruby image based on mine:
+<https://github.com/binaryphile/docker-ruby>.
+
+### Redmine Prereqs
+
+This repo has a prereqs subdirectory.  By changing to that directory and
+adapting that directory's `sample.env` to `.env`, you can follow the
+same procedure for creating a prereq image.  Commit and push the
+appropriate tag for your situation.
+
+### Redmine Bundled
+
+To create a tagged, bundled Redmine, it's exactly the same procedure as
+creating your own updated one.  If you plan on making the tag publicly
+available, though, I would urge you to consider not including any
+customizations in your tag, unless including your customizations is the
+purpose of your image in the first place.
+
+## Tinkering with the Scripts
+
+I wrote this all in shell since most of the process consists of issuing
+CLI commands.  Almost everything in them can be overridden with
+environment variables if you examine what the scripts are doing.
+
+I've tried to make it so that setting a variable once in `.env` will
+alter all of the scripts where appropriate.  If you aren't using `.env`,
+you can just set them in your environment directly and the scripts will
+still work, which is why there are a lot of values coded into the
+scripts that you wouldn't normally concern yourself with.
+
+There are some scripts which are meant to be used in certain contexts,
+usually the RAILS_ENV and the options passed to `docker run`.  These
+scripts have those variables coded into them and may behave funny if you
+override RAILS_ENV etc. in `.env`.  Be careful.
+
+If you are using `.env`, I don't think you can override those variables
+by setting the same ones in your environment directly.
+
 [Docker]: http://docker.io/
 [Redmine]: http://www.redmine.org/
 [unicorn]: http://unicorn.bogomips.org/
@@ -475,4 +553,5 @@ deployment.
 [Puppet]: http://puppetlabs.com/
 [Ansible]: http://www.ansibleworks.com/
 [dotenv]: https://github.com/bkeepers/dotenv
+[hipache]: https://github.com/dotcloud/hipache
 
