@@ -34,4 +34,5 @@ init.sh
 interactive.sh
 initialize-development.sh
 initialize-production.sh
+/plugins
 

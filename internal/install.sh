@@ -14,6 +14,8 @@ fi
 : ${ROOT_FILES_DIR=$ROOT/files}
 : ${RM_LOG_DIR=$RM_DST/log}
 : ${ROOT_LOG_DIR=$ROOT/log}
+: ${RM_PLUGIN_DIR=$RM_DST/plugins}
+: ${ROOT_PLUGIN_DIR=$ROOT/plugins}
 : ${RM_PIASSETS_DIR=$RM_DST/public/plugin_assets}
 : ${U_PID_DIR=$RM_DST/pids}
 
@@ -23,6 +25,8 @@ rm -rf $RM_FILES_DIR
 ln -s $ROOT_FILES_DIR $RM_FILES_DIR
 rm -rf $RM_LOG_DIR
 ln -s $ROOT_LOG_DIR $RM_LOG_DIR
+rm -rf $RM_PLUGIN_DIR
+ln -s $ROOT_PLUGIN_DIR $RM_PLUGIN_DIR
 ln -s $ROOT/config/initializers/secret_token.rb $RM_DST/config/initializers/secret_token.rb
 ln -s $ROOT/.env $RM_DST/.env
 mkdir -p $RM_PIASSETS_DIR
