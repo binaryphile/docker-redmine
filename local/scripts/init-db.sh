@@ -4,7 +4,7 @@ if [ -e .env ]; then
   source .env
 fi
 
-: ${ROOT=/root}
+: ${ROOT=/root/local}
 : ${ROOT_DB_DIR=$ROOT/db}
 : ${RM_DIR=/redmine}
 

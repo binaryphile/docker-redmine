@@ -10,7 +10,7 @@ fi
 : ${RM_PORT=3000}
 : ${CMD="bundle exec rails s"}
 : ${RM_DIR=/redmine}
-: ${OPTIONS="-i -t -w $RM_DIR -v $(pwd):$ROOT -e ROOT=$ROOT -p $RM_PORT:3000"}
+: ${OPTIONS="-i -t -w $RM_DIR -v $(pwd)/local:$ROOT -e ROOT=$ROOT -p $RM_PORT:3000"}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
 

@@ -12,7 +12,7 @@ fi
 : ${RM_URL=https://codeload.github.com/$GH_USER/redmine/tar.gz/$RM_BRANCH}
 : ${ROOT=/root}
 : ${OPTIONS="-i -t -v $(pwd):$ROOT -w $ROOT"}
-: ${CMD=$ROOT/internal/install.sh}
+: ${CMD=$ROOT/install.sh}
 
 rm -rf $RM_BRANCH
 curl $RM_URL | tar -zxvf -

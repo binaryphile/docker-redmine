@@ -8,7 +8,7 @@ fi
 
 : ${ROOT=/root}
 : ${OPTIONS="-i -t -v $(pwd):$ROOT -w $ROOT"}
-: ${CMD=$ROOT/internal/install.sh}
+: ${CMD=$ROOT/install.sh}
 
 $SUDO docker run $OPTIONS $RM_BASE $CMD
 

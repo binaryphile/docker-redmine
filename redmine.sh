@@ -17,7 +17,7 @@ fi
 : ${RM_PORT=3001}
 : ${CMD="bundle exec unicorn_rails -c config/unicorn.rb"}
 : ${RM_DIR=/redmine}
-: ${OPTIONS="-d -w $RM_DIR -v $(pwd):$ROOT -p $RM_PORT:$RM_PORT -e RAILS_ENV=$RAILS_ENV -e U_WORKERS=$U_WORKERS -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS"}
+: ${OPTIONS="-d -w $RM_DIR -v $(pwd)/local:$ROOT -p $RM_PORT:$RM_PORT -e RAILS_ENV=$RAILS_ENV -e U_WORKERS=$U_WORKERS -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS"}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
 

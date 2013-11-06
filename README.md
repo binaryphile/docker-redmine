@@ -85,11 +85,16 @@ the latest at the time of this writing, running on Rails 3.5.13.
 Ruby 2.0.0-p247 and all dependencies are included in the container, so
 running it doesn't require any bundling or software installation.
 
+ImageMagick is installed.
+
 The container is configured to put logs, Redmine file attachments and
 the application's secret_token file on your local filesystem via
 mounting the current directory in the container.
 
-Plugins are mounted from the plugin folder in this directory.
+Plugins are mounted from the local/plugin folder in this directory.  If
+your plugin requires new gems, then the image will have to be rebuilt
+with those gems in the Gemfile, unfortunately.  Otherwise you can just
+put the plugin in the folder and run its migrations as described below.
 
 The image includes git and mercurial SCM executables.  If you need
 others you'll have to rebuild the image.

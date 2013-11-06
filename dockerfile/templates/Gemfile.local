@@ -7,3 +7,5 @@ gem "mysql2", "~> 0.3.11"
 gem "pg", ">= 0.11.0"
 gem "sqlite3"
 
+gem 'dotenv-rails', '~>0.9.0'
+
