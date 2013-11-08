@@ -10,8 +10,9 @@ fi
 
 : ${RM_BRANCH=$RM_VERSION-stable}
 : ${RM_URL=https://codeload.github.com/$GH_USER/redmine/tar.gz/$RM_BRANCH}
+: ${RM_USER=redmine}
 : ${ROOT=/root}
-: ${OPTIONS="-i -t -v $(pwd):$ROOT -w $ROOT"}
+: ${OPTIONS="-i -t -v $(pwd):$ROOT -w $ROOT -e HOME=$ROOT"}
 : ${CMD=$ROOT/install.sh}
 
 rm -rf $RM_BRANCH

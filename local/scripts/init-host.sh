@@ -17,6 +17,8 @@ mkdir -p $ROOT_DB_DIR
 mkdir -p $ROOT_SECRET_DIR
 cd $RM_DIR
 if [ ! -e "$ROOT_SECRET_DIR/secret_token.rb" ]; then
+  source /usr/local/share/chruby/chruby.sh
+  chruby 2.0
   bundle exec rake generate_secret_token
 fi
 

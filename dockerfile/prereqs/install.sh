@@ -5,6 +5,8 @@ if [ -e .env ]; then
 fi
 
 : ${ROOT=/root}
+: ${RM_USER=redmine}
+: ${RM_DIR=/redmine}
 : ${SCMS="git mercurial"}
 : ${DBS="libpq-dev postgresql-client libmysqlclient-dev mysql-client"}
 : ${PREREQS="$SCMS $DBS imagemagick libmagickwand-dev libsqlite3-dev"}
@@ -14,4 +16,8 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get $SOURCE_LIST update
 apt-get $SOURCE_LIST install -y $PREREQS
 apt-get clean
+useradd $RM_USER
+mkdir -p $RM_DIR
+chown $RM_USER $RM_DIR
+chgrp $RM_USER $RM_DIR
 

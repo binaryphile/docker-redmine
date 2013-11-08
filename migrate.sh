@@ -8,7 +8,8 @@ fi
 
 : ${ROOT=/root}
 : ${RM_DIR=/redmine}
-: ${OPTIONS="-i -t -v $(pwd)/local:$ROOT -w $RM_DIR -e ROOT=$ROOT"}
+: ${RM_USER=redmine}
+: ${OPTIONS="-i -t -u $RM_USER -v $(pwd)/local:$ROOT -w $RM_DIR -e ROOT=$ROOT"}
 : ${CMD=$ROOT/scripts/migrate.sh}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
