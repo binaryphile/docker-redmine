@@ -7,6 +7,9 @@ gems to the image, or if you just want to see how the process works.  To
 instead run Redmine, you don't need to build an image, you can just pull
 and customize my image without the need to rebuild it.
 
+Also, before you ask where the Dockerfile is, there is none.
+`dockerfile.sh` performs the steps which a Dockerfile would.
+
 ## Usage
 
 - Clone this repo if you haven't already and cd to the `dockerfile`
