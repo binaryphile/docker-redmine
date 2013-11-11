@@ -20,9 +20,18 @@ fi
 : ${RM_PIASSETS_DIR=$RM_DST/public/plugin_assets}
 : ${U_PID_DIR=$RM_DST/pids}
 
-su -c "$ROOT/copy.sh" -m -s /bin/bash $RM_USER
+rm -rf $RM_DST/*
+cp -R $ROOT_SRC/* $RM_DST
+rm -rf $RM_FILES_DIR
+ln -s $ROOT_FILES_DIR $RM_FILES_DIR
+rm -rf $RM_LOG_DIR
+ln -s $ROOT_LOG_DIR $RM_LOG_DIR
+rm -rf $RM_PLUGIN_DIR
+ln -s $ROOT_PLUGIN_DIR $RM_PLUGIN_DIR
+ln -s $ROOT/config/initializers/secret_token.rb $RM_DST/config/initializers/secret_token.rb
+ln -s $ROOT/.env $RM_DST/.env
+mkdir -p $RM_PIASSETS_DIR
+mkdir -p $U_PID_DIR
 cd $RM_DST
-source /usr/local/share/chruby/chruby.sh
-chruby 2.0
-bundle install --without test
+bundle install --without test --path .bundle
 

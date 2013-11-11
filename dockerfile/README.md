@@ -1,5 +1,8 @@
 # Docker Redmine Build Scripts
 
+Note this file is currently out of date and will be revised in my next
+commit.
+
 Generates a [Docker] image of [Redmine].
 
 Normally you should only need to build your own image if you need to add
@@ -14,7 +17,7 @@ Also, before you ask where the Dockerfile is, there is none.
 
 - Clone this repo if you haven't already and cd to the `dockerfile`
 directory
-- 
+-
 
 ## Working with the Redmine Code
 
