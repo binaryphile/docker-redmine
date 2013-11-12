@@ -16,7 +16,7 @@ fi
 : ${RAILS_ENV=production}
 : ${U_WORKERS=2}
 : ${RM_PORT=3001}
-: ${CMD="source /usr/local/share/chruby/chruby.sh && chruby 2.0 && bundle exec unicorn_rails -c config/unicorn.rb"}
+: ${CMD="bundle exec unicorn_rails -c config/unicorn.rb"}
 : ${RM_DIR=/redmine}
 : ${OPTIONS="-d -u $RM_USER -w $RM_DIR -v $(pwd)/local:$ROOT -p $RM_PORT:$RM_PORT -e RAILS_ENV=$RAILS_ENV -e U_WORKERS=$U_WORKERS -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS"}
 
