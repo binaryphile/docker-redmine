@@ -34,7 +34,7 @@ To stop it, just hit Ctrl-C.
 
 `initialize-development.sh` creates a sqlite database and initializes it
 with the Redmine default data.  You only need to do this once.  The
-database is created in this directory under `./redmine/db`.
+database is created in this directory under `./local/db`.
 
 `demo.sh` runs Redmine in development mode if you want to start it up
 again.
@@ -85,19 +85,20 @@ the latest at the time of this writing, running on Rails 3.5.13.
 Ruby 2.0.0-p247 and all dependencies are included in the container, so
 running it doesn't require any bundling or software installation.
 
-ImageMagick is installed.
-
 The container is configured to put logs, Redmine file attachments and
 the application's secret_token file on your local filesystem via
-mounting the current directory in the container.
+mounting the current directory in the container.  The files will be in
+the directory `local` under this one.
 
-Plugins are mounted from the local/plugin folder in this directory.  If
+Plugins are mounted from the `local/plugin` folder in this directory.  If
 your plugin requires new gems, then the image will have to be rebuilt
 with those gems in the Gemfile, unfortunately.  Otherwise you can just
 put the plugin in the folder and run its migrations as described below.
 
 The image includes git and mercurial SCM executables.  If you need
 others you'll have to rebuild the image.
+
+ImageMagick is installed.
 
 The image includes all requirements for using PostgreSQL and MySQL in
 production.  Development mode only supports sqlite.  If you need MSSQL
@@ -169,7 +170,7 @@ further help for you there.
 
 ### Start Redmine
 
-Run `daemon.sh` as in Getting Started.
+Run `redmine.sh` as in Getting Started.
 
 Stop with `docker ps -l` and `docker stop [id]`.
 
@@ -180,13 +181,13 @@ for `RM_IMAGE`.
 
 Stop the old container. Then run `./migrate.sh`.
 
-Start the new image with `daemon.sh`.
+Start the new image with `redmine.sh`.
 
 ### Deploy New Plugins
 
 Stop the old container, then pull your changes to the plugins folder.
 
-Run `./migrate.sh` and `daemon.sh`.
+Run `./migrate.sh` and `redmine.sh`.
 
 ### A Note on Unicorn
 
