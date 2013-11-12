@@ -135,7 +135,8 @@ initialization scripts.
 
 Then simply add your plugins to the plugins folder here.
 
-To run the plugin migrations, run `./migrate.sh`.
+To run the plugin migrations, run `./migrate.sh`.  _Set
+RAILS_ENV=production first if you're doing a production migration._
 
 Then start up Redmine in either development or production mode with the
 appropriate script, `demo.sh` or `redmine.sh` respectively.
