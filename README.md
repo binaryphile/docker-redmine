@@ -1,5 +1,9 @@
 # Redmine Docker Image Control Scripts
 
+**This README is once again out of date.  This version is very different
+from what's described in this document, so my apologies but you'll have
+to wait a day or two for this to be updated.**
+
 These are scripts to control my general-purpose Docker-ized Redmine
 image.  The goal is for you to be able to use Redmine without having to
 build your own Redmine image.  Hence the things that make a Redmine
