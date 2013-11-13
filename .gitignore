@@ -1,5 +1,6 @@
 /dockerfile/redmine-*/
-/local/
+/redmine-*/
+/plugins/
 .bash_history
 .viminfo
 .env

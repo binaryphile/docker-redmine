@@ -1,4 +1,4 @@
-APP_ROOT = "/redmine"
+APP_ROOT = "/root"
 
 worker_processes ENV["U_WORKERS"].to_i || 2
 working_directory APP_ROOT

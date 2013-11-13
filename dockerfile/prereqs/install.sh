@@ -16,7 +16,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get $SOURCE_LIST update
 apt-get $SOURCE_LIST install -y $PREREQS
 apt-get clean
-useradd -d $RM_DIR -s /bin/bash $RM_USER
+useradd -d $ROOT -s /bin/bash $RM_USER
 mkdir -p $RM_DIR
 chown $RM_USER $RM_DIR
 chgrp $RM_USER $RM_DIR
