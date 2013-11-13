@@ -9,7 +9,7 @@ fi
 : ${ROOT=/root}
 : ${RM_PORT=3000}
 : ${RM_USER=redmine}
-: ${CMD="bundle exec rails s"}
+: ${CMD="$ROOT/scripts/development.sh"}
 : ${RM_DIR=/redmine}
 : ${OPTIONS="-i -t -u $RM_USER -w $RM_DIR -v $(pwd)/local:$ROOT -e ROOT=$ROOT -p $RM_PORT:3000"}
 

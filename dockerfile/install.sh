@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -e .env ]; then
+if [ -e ".env" ]; then
   source .env
 fi
 
@@ -32,6 +32,4 @@ ln -s $ROOT/config/initializers/secret_token.rb $RM_DST/config/initializers/secr
 ln -s $ROOT/.env $RM_DST/.env
 mkdir -p $RM_PIASSETS_DIR
 mkdir -p $U_PID_DIR
-cd $RM_DST
-bundle install --without test --path .bundle
 
