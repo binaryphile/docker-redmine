@@ -4,8 +4,8 @@ if [ -e .env ]; then
   source .env
 fi
 
-: {$RM_DIR=/redmine}
-export REDMINE_LANG=en
+: ${RM_DIR=/redmine}
+: ${ROOT=/root}
 
 cd $RM_DIR
 if [ -e "$ROOT/Gemfile.lock" ]; then
@@ -20,5 +20,13 @@ else
   mv .bundle $ROOT/.bundle
 fi
 ln -s $ROOT/.bundle .bundle
-bundle exec rake redmine:load_default_data
+if [ -d "$ROOT/public" ]; then
+  rm -rf public
+else
+  mv public $ROOT
+fi
+ln -s $ROOT/public public
+bundle install
+bundle exec rake redmine:plugins:migrate
+bundle exec rake db:migrate
 

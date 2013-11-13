@@ -23,6 +23,6 @@ $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-host.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-db.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-migrate.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/load-default.sh
-$SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/migrate.sh
+$SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/install-plugins.sh
 
 
