@@ -30,7 +30,5 @@ $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-host.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-db.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-migrate.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/load-default.sh
-cp -R plugins $RM_DIR
-$SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/install-plugins.sh
 cp .env $RM_DIR
 
