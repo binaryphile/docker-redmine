@@ -1,25 +1,85 @@
 # Redmine Docker Image Control Scripts
 
-**This README is once again out of date.  This version is very different
-from what's described in this document, so my apologies but you'll have
-to wait a day or two for this to be updated.**
+There is a Redmine Docker image I created which is available on the
+Docker index.  This repository contains scripts that let you start the
+container with various configurations.
 
-These are scripts to control my general-purpose Docker-ized Redmine
-image.  The goal is for you to be able to use Redmine without having to
-build your own Redmine image.  Hence the things that make a Redmine
-instance "yours", i.e. the plugins, file attachments, logs etc., are all
-kept outside the image in your local filesystem.
+Features:
+
+- Redmine 2.3 stable
+- Use PostgreSQL or MySQL (adapters included but not the DBMS)
+- ImageMagick, git, mercurial included
+- Plugins do not require a rebuild of the image
+- Credentials and environment are passed in and don't require rebuild
+- Uses `docker run` exclusively, not `docker start`
+- Container only includes necessary binary dependencies - source,
+  attachments, plugins are kept on the host
+- Container does not need to be running to work with the files
+- No dev environment or ssh required in the container
+- Container works for production or development
+
+If you build a Docker container for a Rails app, it can be a good deal
+more complex than a regular Docker container.  For example, you'd want
+the same container to be able to run as a daemon or as an interactive
+session, in development or production mode.  You might want it to talk
+to different databases.  Databases involve credentials, and you can't
+put a container on the index if it contains credentials.
+
+To get around these issues, environment variables are set either in your
+shell or in a project-specific `.env` file and fed into the container.
+All of the desired behavior is configured through these variables.
+
+Because environment variables can be annoying to deal with, I've made it
+so they can be edited in a project-local file and fed into the container
+without requiring you to type long, complex docker commands.
+
+The goal is for you to be able to use Redmine without having to build
+your own Redmine image.  Hence the things that make a Redmine instance
+"yours", i.e. the plugins, file attachments, logs etc., are all kept
+outside the image on your local filesystem.
 
 The image is meant to be used as if Redmine had been "compiled" into an
 executable (the image).  It's started and controlled from outside the
 Docker container, on the host like an executable.  The container stores
-no persistent state and there is no visibility inside the container,
-just as executables do not store persistent state and do not have
-visibility inside them.
+no persistent state and there is usually no need for visibility inside
+the container, just as executables do not store persistent state and do
+not require visibility inside them.
+
+There are scripts which allow you to:
+
+- Run a quick demonstration of Redmine, running sqlite in development
+mode with Webrick
+- Set up the sqlite database with default data (required by the demo)
+- Set up a production database with user credentials and default data
+- Install your plugins, bundle their gems and run their migrations
+- Run a production Redmine in daemon mode with unicorn
+- Run an interactive bash session inside the container, useful for
+troubleshooting
+
+The structure is set up this way: (the scripts take care of all of this
+for you):
+
+- Ruby and all binary dependencies, including DB adapters and SCM
+binaries are in the image
+- The Redmine source, with my own modifications to allow environment
+config, is downloaded into the host working directory and run from there
+- Plugins, attachments etc all go in the host directory as well
+- Gems are pre-bundled in the image, but are exported to your local
+directory so plugins can install new gems
+
+You can set up your own Redmine source (after customizing with my mods)
+or build an image with different dependencies.  Look in the
+`dockerfile` directory for more details.
+
+This image builds off some of my other images which you might also find
+interesting: on top of Docker's base ubuntu:precise, I have a Ruby 2.0
+image (binaryphile/ruby:2.0.0-p247), then a Redmine binary dependency
+image w/o the bundle (binaryphile/redmine:2.3-prereqs).
 
 ## Getting Started with a Demo (development mode)
 
-First copy `sample.env` to `.env`.
+First copy `sample.env` to `.env`.  If you aren't in the `docker` group,
+uncomment the line containing `export SUDO=sudo`.
 
 To run a demo of Redmine in development mode, run:
 
@@ -38,7 +98,7 @@ To stop it, just hit Ctrl-C.
 
 `initialize-development.sh` creates a sqlite database and initializes it
 with the Redmine default data.  You only need to do this once.  The
-database is created in this directory under `./local/db`.
+database is created in this directory under `./redmine-2.3-stable/db`.
 
 `demo.sh` runs Redmine in development mode if you want to start it up
 again.
@@ -49,7 +109,8 @@ You'll need to have PostgreSQL already running on the local host and the
 standard port (5432).  The server should exist but should not have a
 redmine user or database yet.
 
-If you haven't already, copy `sample.env` to `.env`.
+If you haven't already, copy `sample.env` to `.env`.  If you're not in
+the `docker` group, uncomment the line containing `export SUDO=sudo`.
 
 Edit `.env` and set:
 
@@ -67,8 +128,7 @@ Point a web browser at <http://localhost:3001/> to see the site in
 action.  Since the image does not include a proxy server, you will need
 to configure your own Apache/nginx/whatever to front the web server.
 
-To stop it, run `docker ps -l`, find the id, then run `docker stop
-[id]`.
+To stop it, run `docker stop $(docker ps -l)`.
 
 `initialize-production.sh` will create the redmine user and database as
 well as load the default Redmine data.
@@ -92,12 +152,12 @@ running it doesn't require any bundling or software installation.
 The container is configured to put logs, Redmine file attachments and
 the application's secret_token file on your local filesystem via
 mounting the current directory in the container.  The files will be in
-the directory `local` under this one.
+the directory `redmine-2.3-stable` under this one.
 
-Plugins are mounted from the `local/plugin` folder in this directory.  If
-your plugin requires new gems, then the image will have to be rebuilt
-with those gems in the Gemfile, unfortunately.  Otherwise you can just
-put the plugin in the folder and run its migrations as described below.
+Plugins are mounted from the `redmine-2.3-stable/plugin` folder in this
+directory.  Run `./install-plugins.sh` to rebundle and run plugin
+migrations (I'm currently not 100% confident with this script, so if you
+)run into problems, let me know.
 
 The image includes git and mercurial SCM executables.  If you need
 others you'll have to rebuild the image.
@@ -109,9 +169,14 @@ production.  Development mode only supports sqlite.  If you need MSSQL
 in production or anything other than sqlite in development, you'll have
 to rebuild the image.
 
-Any modifications to the Redmine source require rebuilding the
-image.  The scripts to create images are in the dockerfile folder,
-along with their own README.
+## Maintenance
+
+Since Docker creates a new container from the image every time you start
+Redmine, you may want to periodically clean them up.  The command
+`docker rm $(docker ps -a -q)` will remove all non-running containers.
+Use with caution if you run any other containers than Redmine on your
+host.  Otherwise just use `docker rm [container id]` to remove
+individual containers.
 
 ## Customization
 
@@ -120,34 +185,50 @@ Once you've gotten it working, you may want to do any of the following:
 - Customize the Redmine source code
 - Customize Redmine with static pages
 - Customize Redmine with plugins
+- Customize Redmine with themes
 
 ### Customize the Redmine Source Code
 
-If you want to work with the Redmine source code, see
-dockerfile/README.md.  It describes the development process with Redmine
-and Docker, as well as how to build a new Redmine image.
+Any modifications you want to make to the Redmine source can be done in
+`redmine-2.3-stable`.  Currently that folder is not under version
+control, so the best approach is to fork either my 2.3-stable branch on
+github, or the main Redmine repo's 2.3-stable branch.  Clone that
+elsewhere, commit and push your modifications.  Copy your source to
+`redmine-2.3-stable` and restart Redmine.
+
+If you decide to fork the main Redmine repo, you'll need to replace the
+files in your fork with the ones from `dockerfile/templates`.  These
+allow the environment variables to control the configuration.  See
+`dockerfile/README.md` for more info.
+
+Also, if you decide to reinitialize your image, you'll want to modify
+GH_USER in `.env` to point to your github username so it downloads your
+fork of the Redmine source.
 
 ### Customize Redmine with Static Pages
 
-Currently there is no support for putting files in the public folder.
-If someone asks me for this, I may work on it.
+Put any html files you want in `redmine-2.3-stable/public`.  I haven't
+tested this yet, and it probably won't work in production mode, but it
+should work in development.
 
 ### Customize Redmine with Plugins
 
 Make sure your database has been initialized with one of the
 initialization scripts.
 
-Then simply add your plugins to the plugins folder here.
-
-To run the plugin migrations, run `./migrate.sh`.  _Set
-RAILS_ENV=production first if you're doing a production migration._
-
-Then start up Redmine in either development or production mode with the
-appropriate script, `demo.sh` or `redmine.sh` respectively.
+Then your plugins to the plugins folder here and run
+`./install-plugins.sh`.  It will run bundler and migrate the plugins.
+This script is not well-tested at this point and may not work correctly.
 
 It is recommended that you create a git repository in the plugins
 directory which stores all of your plugins.  This will make it easier to
 deploy in production.
+
+### Customize Redmine with Themes
+
+Install your theme in `redmine-2.3-stable/public/themes`.  You may need
+to restart Redmine for it to become available in the Administration
+settings.
 
 ## Production Deployment
 
@@ -210,6 +291,22 @@ scrapping the entire container when you upgrade and unicorn is inside
 it.  There isn't a comparable feature in my setup here, but you can
 certainly investigate [hipache], which is the Docker company's project
 for orchestrating container upgrades, among other features.
+
+### Processing Incoming Emails Locally
+
+Redmine has a rake task to process incoming emails through IMAP or POP3.
+
+The same image can be used to run a separate container which processes
+the emails and feeds them into your production database.  You can set up
+a cron job like:
+
+`*/10 * * * * docker run -d -v /path/to/redmine-2.3-stable:/root -w /root -e RAILS_ENV=production binaryphile/redmine:2.3-stable bundle exec rake redmine:email:receive_imap [the rest of the options]`
+
+That will run the email task every 10 minutes.  Check `/var/log/syslog`
+and `redmine-2.3-stable/log/production.log` for messages.  Choose the
+`receive_imap` or `receive_pop3` task as appropriate.  Change the docker
+path to point to your installation, and look up the rest of the rake
+task's options on the Redmine wiki.
 
 ### Running a Proxy Server
 

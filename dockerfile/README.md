@@ -1,7 +1,11 @@
 # Docker Redmine Build Scripts
 
-Note this file is currently out of date and will be revised in my next
-commit.
+**Note this file is currently out of date and will be revised as soon as
+I can get back to it.  Feel free to play around, it's not hard to figure
+out.**
+
+**Namely, the Redmine code is no longer kept in the image, and the
+bundle is cached in here.**
 
 Generates a [Docker] image of [Redmine].
 
