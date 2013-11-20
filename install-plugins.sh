@@ -11,7 +11,7 @@ fi
 : ${RM_DIR=redmine-$RM_BRANCH}
 : ${ROOT=/root}
 : ${RM_USER=redmine}
-: ${OPTIONS="-i -t -u $RM_USER -v $(pwd)/$RM_DIR:$ROOT -w $ROOT -e ROOT=$ROOT -e RAILS_ENV=$RAILS_ENV"}
+: ${OPTIONS="-i -t -u $RM_USER -v $(pwd)/$RM_DIR:$ROOT -w $ROOT -e ROOT=$ROOT"}
 : ${CMD=$ROOT/scripts/install-plugins.sh}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD

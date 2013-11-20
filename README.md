@@ -156,8 +156,10 @@ the directory `redmine-2.3-stable` under this one.
 
 Plugins are mounted from the `redmine-2.3-stable/plugin` folder in this
 directory.  Run `./install-plugins.sh` to rebundle and run plugin
-migrations (I'm currently not 100% confident with this script, so if you
-)run into problems, let me know.
+migrations.  By default it will run the migrations in development mode,
+so if you want them to run in production mode, set `export
+RAILS_ENV=production` in the `.env` file _in the redmine-2.3-stable`
+directory_.
 
 The image includes git and mercurial SCM executables.  If you need
 others you'll have to rebuild the image.
