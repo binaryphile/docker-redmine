@@ -14,7 +14,7 @@ fi
 
 : ${RM_BRANCH=$RM_VERSION-stable}
 : ${RM_DIR=redmine-$RM_BRANCH}
-: ${RM_URL=https://codeload.github.com/$GH_USER/redmine/tar.gz/$RM_BRANCH}
+: ${RM_URL=git://github.com/$GH_USER/redmine}
 : ${ROOT=/root}
 : ${RAILS_ENV=production}
 : ${RM_USER=redmine}
@@ -24,11 +24,11 @@ fi
 : ${RM_DIR=/redmine}
 : ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -e ROOT=$ROOT -e RAILS_ENV=$RAILS_ENV -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS -e SU_PASS=$SU_PASS -e SU_USER=$SU_USER"}
 
-curl $RM_URL | tar -zxvf -
+git $RM_URL $RM_DIR
 cp -R scripts $RM_DIR
+cp .env $RM_DIR
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-host.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-db.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-migrate.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/load-default.sh
-cp .env $RM_DIR
 
