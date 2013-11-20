@@ -19,7 +19,7 @@ git clone $RM_URL $RM_DIR
 cp -R scripts $RM_DIR
 cp .env $RM_DIR
 cd $RM_DIR
-git co $RM_BRANCH
+git checkout $RM_BRANCH
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-host.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-db.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-migrate.sh
