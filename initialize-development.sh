@@ -15,9 +15,22 @@ fi
 : ${RM_USER=redmine}
 : ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -e HOME=$ROOT -e ROOT=$ROOT"}
 
-git clone -b $RM_BRANCH $RM_URL $RM_DIR
+if [ -d $RM_DIR ]; then
+  cd $RM_DIR
+  git pull
+  git checkout -b dev 2>> /dev/null
+  git checkout dev 2>> /dev/null
+  git pull
+  cd ..
+else
+  git clone -b $RM_BRANCH $RM_URL $RM_DIR
+fi
 cp -R scripts $RM_DIR
-cp .env $RM_DIR
+if [ ! -e $RM_DIR/.env ]; then
+  cp .env $RM_DIR
+  rm .env
+  ln -s $RM_DIR/.env .env
+fi
 cd $RM_DIR
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-host.sh
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/init-db.sh
