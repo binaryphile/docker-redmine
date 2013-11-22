@@ -1,5 +1,5 @@
 /dockerfile/redmine-*/
-/redmine-*/
+/*-stable/
 /plugins/
 .bash_history
 .viminfo
