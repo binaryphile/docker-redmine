@@ -156,7 +156,7 @@ mounting the current directory in the container.  The files will be in
 the directory `2.3-stable` under this one.
 
 Plugins are mounted from the `2.3-stable/plugins` folder in this
-directory.  Run `./install-plugins.sh` to rebundle and run plugin
+directory.  Run `./migrate-plugins.sh` to rebundle and run plugin
 migrations.  By default it will run the migrations in development mode,
 so if you want them to run in production mode, set `export
 RAILS_ENV=production` in the `.env` file.
@@ -219,7 +219,7 @@ Make sure your database has been initialized with one of the
 initialization scripts.
 
 Then your plugins to the plugins folder here and run
-`./install-plugins.sh`.  It will run bundler and migrate the plugins.
+`./migrate-plugins.sh`.  It will run bundler and migrate the plugins.
 This script is not well-tested at this point and may not work correctly.
 
 It is recommended that you create a git repository in the plugins
