@@ -16,17 +16,17 @@ fi
 : ${RM_DIR=/redmine}
 
 if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
-: ${DB_USER?"need to set database username DB_USER, see README.md"}
-: ${DB_PASS?"need to set database password DB_PASS, see README.md"}
-: ${SU_USER?"need to set database superuser name SU_USER, see README.md"}
-: ${SU_PASS?"need to set database superuser password SU_PASS, see README.md"}
+  : ${DB_USER?"need to set database username DB_USER, see README.md"}
+  : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
+  : ${SU_USER?"need to set database superuser name SU_USER, see README.md"}
+  : ${SU_PASS?"need to set database superuser password SU_PASS, see README.md"}
 
-: ${DB_ADAPTER=postgresql}
-: ${DB_DATABASE=redmine}
-: ${DB_HOST=172.17.42.1}
-: ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -e ROOT=$ROOT -e RAILS_ENV=$RAILS_ENV -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS -e SU_PASS=$SU_PASS -e SU_USER=$SU_USER"}
+  : ${DB_ADAPTER=postgresql}
+  : ${DB_DATABASE=redmine}
+  : ${DB_HOST=172.17.42.1}
+  : ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -e ROOT=$ROOT -e RAILS_ENV=$RAILS_ENV -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS -e SU_PASS=$SU_PASS -e SU_USER=$SU_USER"}
 else
-: ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -e HOME=$ROOT -e ROOT=$ROOT"}
+  : ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -e HOME=$ROOT -e ROOT=$ROOT"}
 fi
 
 if [ -d $RM_DIR ]; then
@@ -40,8 +40,6 @@ fi
 cp -R scripts $RM_DIR
 
 if [ ! -e "$RM_DIR/.env" ]; then
-  cp .env $RM_DIR
-  rm .env
   ln -s $RM_DIR/.env .env
 fi
 
