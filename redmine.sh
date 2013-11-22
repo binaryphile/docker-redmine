@@ -8,7 +8,7 @@ fi
 : ${RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
 
 : ${RM_BRANCH=$RM_VERSION-stable}
-: ${RM_DIR=redmine-$RM_BRANCH}
+: ${RM_DIR=$RM_BRANCH}
 : ${ROOT=/root}
 : ${RM_USER=redmine}
 
