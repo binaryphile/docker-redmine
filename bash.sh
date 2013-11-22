@@ -9,6 +9,7 @@ fi
 
 : ${RM_BRANCH=$RM_VERSION-stable}
 : ${RM_DIR=$RM_BRANCH}
+: ${MT_DIR=$(pwd)/$RM_DIR}
 : ${ROOT=/root}
 : ${RM_USER=redmine}
 : ${CMD=/bin/bash}
@@ -21,10 +22,10 @@ if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
 : ${DB_DATABASE=redmine}
 : ${DB_HOST=172.17.42.1}
 : ${RM_PORT=3001}
-: ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -p $RM_PORT:3001 -e ROOT=$ROOT -e HOME=$ROOT -e RAILS_ENV=$RAILS_ENV -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS -e SU_USER=$SU_USER -e SU_PASS=$SU_PASS"}
+: ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $MT_DIR:$ROOT -p $RM_PORT:3001 -e ROOT=$ROOT -e HOME=$ROOT -e RAILS_ENV=$RAILS_ENV -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS -e SU_USER=$SU_USER -e SU_PASS=$SU_PASS"}
 else
 : ${RM_PORT=3000}
-: ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $(pwd)/$RM_DIR:$ROOT -p $RM_PORT:3000 -e ROOT=$ROOT -e HOME=$ROOT"}
+: ${OPTIONS="-i -t -u $RM_USER -w $ROOT -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e ROOT=$ROOT -e HOME=$ROOT"}
 fi
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
