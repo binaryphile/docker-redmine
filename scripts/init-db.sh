@@ -7,7 +7,7 @@ fi
 : ${ROOT=/root}
 
 cd $ROOT
-if [ "$RAILS_ENV" == "production" ]; then
+if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
   export PGPASSWORD=$SU_PASS
   export PGUSER=$SU_USER
   export PGHOST=$DB_HOST

@@ -83,8 +83,8 @@ uncomment the line containing `export SUDO=sudo`.
 
 To run a demo of Redmine in development mode, run:
 
-    ./initialize-development.sh
-    ./demo.sh
+    ./initialize.sh
+    ./redmine.sh
 
 Then point your browser to <http://localhost:3000/>.  Admin user is
 "admin", password "admin".  You'll want to change this if the system is
@@ -96,11 +96,11 @@ the terminal just as if you had run `bundle exec rails s`.
 
 To stop it, just hit Ctrl-C.
 
-`initialize-development.sh` creates a sqlite database and initializes it
+`initialize.sh` creates a sqlite database and initializes it
 with the Redmine default data.  You only need to do this once.  The
-database is created in this directory under `./redmine-2.3-stable/db`.
+database is created in this directory under `./2.3-stable/db`.
 
-`demo.sh` runs Redmine in development mode if you want to start it up
+`redmine.sh` runs Redmine in development mode if you want to start it up
 again.
 
 ## Getting Started with Production
@@ -114,14 +114,15 @@ the `docker` group, uncomment the line containing `export SUDO=sudo`.
 
 Edit `.env` and set:
 
-- **SU_USER** - the server superuser name
-- **SU_PASS** - the server superuser password
-- **DB_USER** - the redmine desired user name
-- **DB_PASS** - the desired redmine user password
+- **SU_USER- ** the server superuser name
+- **SU_PASS- ** the server superuser password
+- **DB_USER- ** the redmine desired user name
+- **DB_PASS- ** the desired redmine user password
+- **RAILS_ENV -** set to "production" (case sensitive)
 
 Then run:
 
-    ./initialize-production.sh
+    ./initialize.sh
     ./redmine.sh
 
 Point a web browser at <http://localhost:3001/> to see the site in
@@ -130,7 +131,7 @@ to configure your own Apache/nginx/whatever to front the web server.
 
 To stop it, run `docker stop $(docker ps -l)`.
 
-`initialize-production.sh` will create the redmine user and database as
+`initialize.sh` will create the redmine user and database as
 well as load the default Redmine data.
 
 `redmine.sh` runs a production redmine instance in daemon mode in the
@@ -152,14 +153,13 @@ running it doesn't require any bundling or software installation.
 The container is configured to put logs, Redmine file attachments and
 the application's secret_token file on your local filesystem via
 mounting the current directory in the container.  The files will be in
-the directory `redmine-2.3-stable` under this one.
+the directory `2.3-stable` under this one.
 
-Plugins are mounted from the `redmine-2.3-stable/plugin` folder in this
+Plugins are mounted from the `2.3-stable/plugins` folder in this
 directory.  Run `./install-plugins.sh` to rebundle and run plugin
 migrations.  By default it will run the migrations in development mode,
 so if you want them to run in production mode, set `export
-RAILS_ENV=production` in the `.env` file _in the redmine-2.3-stable`
-directory_.
+RAILS_ENV=production` in the `.env` file.
 
 The image includes git and mercurial SCM executables.  If you need
 others you'll have to rebuild the image.
@@ -192,11 +192,11 @@ Once you've gotten it working, you may want to do any of the following:
 ### Customize the Redmine Source Code
 
 Any modifications you want to make to the Redmine source can be done in
-`redmine-2.3-stable`.  Currently that folder is not under version
+`2.3-stable`.  Currently that folder is not under version
 control, so the best approach is to fork either my 2.3-stable branch on
 github, or the main Redmine repo's 2.3-stable branch.  Clone that
 elsewhere, commit and push your modifications.  Copy your source to
-`redmine-2.3-stable` and restart Redmine.
+`2.3-stable` and restart Redmine.
 
 If you decide to fork the main Redmine repo, you'll need to replace the
 files in your fork with the ones from `dockerfile/templates`.  These
@@ -209,7 +209,7 @@ fork of the Redmine source.
 
 ### Customize Redmine with Static Pages
 
-Put any html files you want in `redmine-2.3-stable/public`.  I haven't
+Put any html files you want in `2.3-stable/public`.  I haven't
 tested this yet, and it probably won't work in production mode, but it
 should work in development.
 
@@ -228,7 +228,7 @@ deploy in production.
 
 ### Customize Redmine with Themes
 
-Install your theme in `redmine-2.3-stable/public/themes`.  You may need
+Install your theme in `2.3-stable/public/themes`.  You may need
 to restart Redmine for it to become available in the Administration
 settings.
 
@@ -248,7 +248,7 @@ of the variables can stay default.
 ### Initialize the Database
 
 Follow the instructions above for setting up a PostgreSQL database,
-which is mostly just running `initialize-production.sh`.  If you don't
+which is mostly just running `initialize.sh`.  If you don't
 have pg, you can use my PostgreSQL image from
 <https://github.com/binaryphile/docker-pgsql>.
 
@@ -302,10 +302,10 @@ The same image can be used to run a separate container which processes
 the emails and feeds them into your production database.  You can set up
 a cron job like:
 
-`*/10 * * * * docker run -d -v /path/to/redmine-2.3-stable:/root -w /root -e RAILS_ENV=production binaryphile/redmine:2.3-stable bundle exec rake redmine:email:receive_imap [the rest of the options]`
+`*/10 * * * * docker run -d -v /path/to/2.3-stable:/root -w /root -e RAILS_ENV=production binaryphile/redmine:2.3-stable bundle exec rake redmine:email:receive_imap [the rest of the options]`
 
 That will run the email task every 10 minutes.  Check `/var/log/syslog`
-and `redmine-2.3-stable/log/production.log` for messages.  Choose the
+and `2.3-stable/log/production.log` for messages.  Choose the
 `receive_imap` or `receive_pop3` task as appropriate.  Change the docker
 path to point to your installation, and look up the rest of the rake
 task's options on the Redmine wiki.
