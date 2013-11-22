@@ -32,9 +32,6 @@ fi
 if [ -d $RM_DIR ]; then
   cd $RM_DIR
   git pull
-  git checkout -b dev 2>> /dev/null
-  git checkout dev 2>> /dev/null
-  git pull
   cd ..
 else
   git clone -b $RM_BRANCH $RM_URL $RM_DIR
