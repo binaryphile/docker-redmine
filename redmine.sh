@@ -7,10 +7,11 @@ fi
 : ${RM_IMAGE?"need to set redmine image RM_IMAGE, see README.md"}
 : ${RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
 
+: ${ROOT=/root}
 : ${RM_BRANCH=$RM_VERSION-stable}
 : ${RM_DIR=$RM_BRANCH}
 : ${MT_DIR=$(pwd)/$RM_DIR}
-: ${ROOT=/root}
+: ${WK_DIR=$ROOT/$RM_DIR}
 : ${RM_USER=redmine}
 
 if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
