@@ -5,8 +5,10 @@ if [ -e ".env" ]; then
 fi
 
 : ${ROOT=/root}
+: ${RM_BRANCH=$RM_VERSION-stable}
+: ${RM_DIR=$ROOT/$RM_BRANCH}
 
-cd $ROOT
+cd $RM_DIR
 bundle install
 bundle exec rake redmine:plugins:migrate
 

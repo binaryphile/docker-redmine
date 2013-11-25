@@ -8,9 +8,10 @@ fi
 : ${RM_BRANCH=$RM_VERSION-stable}
 : ${RM_DIR=$ROOT/$RM_BRANCH}
 : ${BDL_DIR=/redmine/.bundle}
-: ${SECRET_FILE=$ROOT/config/initializers/secret_token.rb}
-: ${PID_DIR=$ROOT/pids}
-: ${REDMINE_LANG=en}
+: ${SECRET_FILE=$RM_DIR/config/initializers/secret_token.rb}
+: ${PID_DIR=$RM_DIR/pids}
+: ${LANG=en}
+export REDMINE_LANG=$LANG
 
 cd $RM_DIR
 if [ ! -d ".bundle" ]; then
