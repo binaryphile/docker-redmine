@@ -25,10 +25,9 @@ if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
   : ${DB_ADAPTER=postgresql}
   : ${DB_DATABASE=redmine}
   : ${DB_HOST=172.17.42.1}
-  : ${OPTIONS="-i -t -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT -e RAILS_ENV=$RAILS_ENV -e DB_ADAPTER=$DB_ADAPTER -e DB_DATABASE=$DB_DATABASE -e DB_HOST=$DB_HOST -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS -e SU_PASS=$SU_PASS -e SU_USER=$SU_USER"}
-else
-  : ${OPTIONS="-i -t -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"}
 fi
+
+: ${OPTIONS="-i -t -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"}
 
 if [ -d $RM_DIR ]; then
   cd $RM_DIR
@@ -36,6 +35,7 @@ if [ -d $RM_DIR ]; then
   cd ..
 else
   git clone -b $RM_BRANCH $RM_URL $RM_DIR
+  ln -s ../.env $RM_DIR/.env
 fi
 
 $SUDO docker run $OPTIONS $RM_IMAGE $ROOT/scripts/initialize.sh
