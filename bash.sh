@@ -11,7 +11,7 @@ fi
 : ${RM_BRANCH=$RM_VERSION-stable}
 : ${RM_DIR=$RM_BRANCH}
 : ${MT_DIR=$(pwd)}
-: ${WK_DIR=$ROOT}
+: ${WK_DIR=$ROOT/$RM_DIR}
 : ${RM_USER=redmine}
 : ${CMD=/bin/bash}
 
