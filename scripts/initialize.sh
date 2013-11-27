@@ -14,7 +14,7 @@ fi
 export REDMINE_LANG=$LANG
 
 cd $RM_DIR
-if [ ! -d ".bundle" ]; then
+if [ ! -d .bundle ]; then
   cp -R $BDL_DIR .
 fi
 
@@ -24,7 +24,7 @@ fi
 
 mkdir -p $PID_DIR
 
-if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
+if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
   export PGPASSWORD=$SU_PASS
   export PGUSER=$SU_USER
   export PGHOST=$DB_HOST

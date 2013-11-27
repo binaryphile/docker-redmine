@@ -14,12 +14,11 @@ fi
 : ${WK_DIR=$ROOT/$RM_DIR}
 : ${RM_USER=redmine}
 
-if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
-  : ${U_WORKERS=2}
+if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
   : ${RM_PORT=3001}
-  : ${U_ROOT=$WK_DIR}
   : ${MODE=-d}
   : ${RE="-e RAILS_ENV=$RAILS_ENV"}
+  : ${UW="-e U_WORKERS=$U_WORKERS"}
   : ${CMD="bundle exec unicorn_rails -c config/unicorn.rb"}
 else
   : ${RM_PORT=3000}
@@ -27,7 +26,7 @@ else
   : ${CMD="bundle exec rails s"}
 fi
 
-: ${OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT -e U_WORKERS=$U_WORKERS -e U_ROOT=$U_ROOT $RE"}
+: ${OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT $RE $UW"}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
 

@@ -15,13 +15,9 @@ fi
 : ${RM_USER=redmine}
 : ${CMD=/bin/bash}
 
-if [ -v RAILS_ENV -a "$RAILS_ENV" == "production" ]; then
+if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
   : ${DB_USER?"need to set database username DB_USER, see README.md"}
   : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
-
-  : ${DB_ADAPTER=postgresql}
-  : ${DB_DATABASE=redmine}
-  : ${DB_HOST=172.17.42.1}
   : ${RM_PORT=3001}
 else
   : ${RM_PORT=3000}

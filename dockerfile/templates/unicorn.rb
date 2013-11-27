@@ -1,22 +1,19 @@
-APP_ROOT = "/root"
-
-worker_processes ENV["U_WORKERS"].to_i || 2
-working_directory APP_ROOT
+worker_processes ENV["U_WORKERS"].to_s.empty? ? 2 : ENV["U_WORKERS"].to_i
 
 timeout 180
 
-listen 3001
+listen 3000
 
-pid APP_ROOT + "/pids/unicorn.pid"
+pid "pids/unicorn.pid"
 
-stderr_path APP_ROOT + "/log/unicorn.stderr.log"
+stderr_path "log/unicorn.stderr.log"
 
 preload_app true
 
 GC.respond_to?(:copy_on_write_friendly=) and  GC.copy_on_write_friendly = true
 
 before_exec do |server|
-  ENV["BUNDLE_GEMFILE"] = APP_ROOT + "/Gemfile"
+  ENV["BUNDLE_GEMFILE"] = "Gemfile"
 end
 
 before_fork do |server, worker|
