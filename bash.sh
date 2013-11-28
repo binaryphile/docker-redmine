@@ -23,7 +23,7 @@ else
   : ${RM_PORT=3000}
 fi
 
-: ${OPTIONS="-i -t -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT"}
+: ${OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT"}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
 

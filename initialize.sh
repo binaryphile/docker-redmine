@@ -23,7 +23,7 @@ if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
   : ${SU_PASS?"need to set database superuser password SU_PASS, see README.md"}
 fi
 
-: ${OPTIONS="-i -t -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"}
+: ${OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"}
 : ${CMD=$ROOT/scripts/initialize.sh}
 
 if [ -d $RM_DIR ]; then

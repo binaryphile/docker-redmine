@@ -22,7 +22,7 @@ if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
   : ${CMD="bundle exec unicorn_rails -c config/unicorn.rb"}
 else
   : ${RM_PORT=3000}
-  : ${MODE="-i -t"}
+  : ${MODE="-i -t -rm"}
   : ${CMD="bundle exec rails s"}
 fi
 
