@@ -1,7 +1,7 @@
 # Docker Redmine
 
-Control scripts for a general-purpose Docker image of the Redmine issue
-tracker.
+Control scripts for a general-purpose Docker image of the [Redmine]
+issue tracker.
 
 ## Requirements
 
@@ -14,15 +14,31 @@ That's it.
 ```
 git clone git://github.com/binaryphile/docker-redmine
 cd docker-redmine
-cp sample.env .env
-./initialize.sh
-./redmine.sh
+./demo.sh
 ```
 
-This will start a Redmine instance in development mode on port 3000 of
-the host machine.  Connect at <http://localhost:3000/>.
+This will download, initialize and start a Redmine instance in
+development mode on port 3000 of the host machine.  Connect at
+<http://localhost:3000/>.
 
 To stop the server hit Ctrl-C.
+
+## Installing Plugins
+
+Put your plugins in the `plugins` directory under
+`docker-redmine/2.3-stable` and run:
+
+```
+./migrate-plugins.sh
+```
+
+Note: _don't_ put plugins in the directory before you've run
+`initialize.sh` or that command will fail.
+
+## Installing Themes
+
+Put your themes in the `themes` directory under
+`docker-redmine/2.3-stable/public`.
 
 ## Quick Start - Production Mode
 
@@ -83,23 +99,6 @@ To stop the server run `docker stop $(docker ps -l -q)`.
 To stop the PostgreSQL server, run `docker ps`, find the id of the
 PostgreSQL container and run `docker stop [id]`.
 
-## Installing Plugins
-
-Put your plugins in the `plugins` directory under
-`docker-redmine/2.3-stable` and run:
-
-```
-./migrate-plugins.sh
-```
-
-Note: _don't_ put plugins in their directory before you've run
-`initialize.sh` or that command will fail.
-
-## Installing Themes
-
-Put your themes in the `themes` directory under
-`docker-redmine/2.3-stable/public`.
-
 ## Upgrading
 
 TBD
@@ -114,28 +113,17 @@ TBD
 
 ## Dockerfile
 
-Instead of a conventional Dockerfile, there is a script
-`dockerfile.sh` in the `dockerfile` directory.  I only mention this
-since it's the first question anyone asks about the project.
+Instead of a conventional Dockerfile, there is a script `dockerfile.sh`
+in the `dockerfile` directory.  I mention this not because you'll need
+it but rather because the first question everyone asks is where the
+Dockerfile is.
 
-You should only need the file if for some reason you need a different
-version of Redmine.  If you're just looking to run Redmine server, I've
-built this image so it can be customized with plugins and themes without
-needing to be rebuilt.
+You should only need it if for some reason you need a different version
+of Redmine.  If you're just looking to run Redmine as a server, you
+won't need to build the image.  You can customize the existing image
+with plugins and themes without a rebuild.
 
-If you run into a use case that isn't covered by my image, let me know
-so that it can be improved.  By not having to rebuild the image it is
-more likely to be reused by many people and for many to benefit by any
-improvement in it.
-
-If you _do_ need to rebuild the image, `dockerfile.sh` will generate an
-image just like a regular Dockerfile.  I use shell script for two
-reasons.  First, shell is more flexible and powerful than Dockerfiles.
-Second, it is difficult to get Dockerfiles to stop generating a ton of
-AUFS layers, and once you run out of layers, your image becomes
-unusable.  So fewer is better.
-
-For more details, see `README.md` in the `dockerfile` directory.
+For more details, see `dockerfile/README.md`.
 
 ## Maintenance
 
@@ -175,7 +163,7 @@ as `/root`.
 
 Once installed, your image will have:
 
-- Redmine 2.3-stable
+- Redmine 2.3-stable branch
 - Rails 3.2.13
 - Ruby 2.0.0-p247
 - ImageMagick
@@ -192,7 +180,7 @@ The only things missing from a standard Redmine install are the extra
 basic themes aside from the default theme.  You can install them as you
 would any other theme.
 
-## Container Stack
+## Image Stack
 
 - binaryphile/redmine:2.3-stable
 - binaryphile/redmine:2.3-prereqs
@@ -237,5 +225,6 @@ new plugins in separate staging environment, perhaps your own desktop
 - development and production use - you want to hack on plugin code or
 the Redmine code itself
 
+[Redmine]: http://www.redmine.org/
 [Docker]: http://www.docker.io/
 
