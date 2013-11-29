@@ -327,11 +327,11 @@ Copy the files from `docker-redmine/templates` to your clone:
 
 Commit the changes.
 
-Run `initialize.sh` again to get the gems bundled.  Now you can run the
-server with `redmine.sh` and your edits will show up when you test with
-a web browser.  You can run the same code in production by committing
-and pushing your changes, then making sure the production environment
-pulls from the same github user and branch.
+Run `initialize.sh`.  Now you can run the server with `redmine.sh` and
+your edits will show up when you test with a web browser.  You can run
+the same code in production by committing and pushing your changes, then
+making sure the production environment pulls from the same github user
+and branch.
 
 ### File Ownership
 
