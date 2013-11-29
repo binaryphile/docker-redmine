@@ -113,6 +113,50 @@ TBD
 
 TBD
 
+## Contents
+
+The image contains:
+
+- Redmine 2.3-stable branch
+- Rails 3.2.13
+- Ruby 2.0.0-p247
+- ImageMagick
+- PostgreSQL adapter for production
+- SQLite for development
+- support for MySQL adapter
+- Unicorn server for production
+- Git and Mercurial binaries
+- all gem requirements installed
+- all binary requirements installed
+- Ubuntu 12.04
+
+The only things missing from the standard Redmine install are the extra
+basic themes aside from the default theme.  You can install them as you
+would any other theme.
+
+## Image Stack
+
+- binaryphile/redmine:2.3-stable
+- binaryphile/redmine:2.3-prereqs
+- binaryphile/ruby:2.0.0-p247
+- ubuntu:12.04
+
+## Directory Structure
+
+- **2.3-stable/ -** the Redmine 2.3 source repo (cloned during
+`initialize.sh`), with Docker-friendly customizations
+- **dockerfile/ -** directory with image creation scripts - see
+`README.md` in dir for details
+- **scripts/ -** scripts which are run from inside the container
+- **bash.sh -** start an interactive session inside a container
+(development mode by default)
+- **demo.sh -** do initial setup and run a development docker - use
+`redmine.sh` instead after first run
+- **initialize.sh -** set up the Redmine source, bundler, extra
+directories, the database and default data
+- **migrate-plugins.sh -** bundle plugin gems and migrate plugins
+- **sample.env -** sample values for important environment variables
+
 ## Dockerfile
 
 Instead of a conventional Dockerfile, there is a script `dockerfile.sh`
@@ -165,50 +209,6 @@ container (assuming you have a working ruby environment).  However if
 you need to run from the container, you can use the `bash.sh` script to
 run an interactive shell inside.  The working directory will be mounted
 as `/root`.
-
-## Contents
-
-Once installed, your image will have:
-
-- Redmine 2.3-stable branch
-- Rails 3.2.13
-- Ruby 2.0.0-p247
-- ImageMagick
-- PostgreSQL adapter for production
-- SQLite for development
-- support for MySQL adapter
-- Unicorn server for production
-- Git and Mercurial binaries
-- all gem requirements installed
-- all binary requirements installed
-- Ubuntu 12.04
-
-The only things missing from a standard Redmine install are the extra
-basic themes aside from the default theme.  You can install them as you
-would any other theme.
-
-## Image Stack
-
-- binaryphile/redmine:2.3-stable
-- binaryphile/redmine:2.3-prereqs
-- binaryphile/ruby:2.0.0-p247
-- ubuntu:12.04
-
-## Directory Structure
-
-- **2.3-stable/ - ** the Redmine 2.3 source repo, with Docker-friendly
-customizations (cloned during `initialize.sh`)
-- **dockerfile/ -** directory with image creation scripts - see
-`README.md` in dir for details
-- **scripts/ -** scripts which are run from inside the container
-- **bash.sh -** start an interactive session inside a container
-(development mode by default)
-- **demo.sh -** do initial setup and run a development docker - use
-`redmine.sh` instead after first run
-- **initialize.sh -** set up the Redmine source, bundler, extra
-directories, the database and default data
-- **migrate-plugins.sh -** bundle plugin gems and migrate plugins
-- **sample.env -** sample values for important environment variables
 
 ## Image Details
 
@@ -291,25 +291,27 @@ the prerequisites.
 
 I recommend setting up your tools, such as Vim or RubyMine, outside of
 the container on the host.  The source is all kept outside the container
-in the `2.3-stable` directory, so you can edit it there and keep a
-container running in development mode to test with a web browser.
+in the `2.3-stable` (or your branch name) directory, so you can edit it
+there and keep a container running in development mode to test with a
+web browser, since it runs from the same code on the host.
 
 If you are working with a plugin, the standard image should work fine.
 If you're working with your own fork of Redmine, however, you'll need to
 make some modifications.
 
-The image will work with your repo, you just have to change the GH_USER
-variable when you are setting up, and then make some modifications to
-the Redmine code itself.  I've provided templates for the files which
-need to change.
+The image will work with any recent branch, so you can use it with your
+own fork even if you aren't using 2.3-stable.  You just have to change
+the GH_USER variable when you are setting up, and then make some
+modifications to the Redmine code itself.  I've provided templates for
+the files which need to change.
 
-First edit `.env` and change GH_USER to your github user id, or the one
+First edit `.env` and change GH_USER to your Github user id, or the one
 which contains the Redmine fork if not yours.  The default is to use the
 2.3-stable branch.  If you want a different -stable branch, set
-RM_VERSION to the version number.  If instead you want an entirely
-different branch, set RM_BRANCH.  For versions of Redmine which have the
-same binary requirements as 2.3, you can leave RM_IMAGE alone.  Make
-sure RAILS_ENV is unset or set to development.
+RM_VERSION to the version number.  If instead you want a non-stable
+branch, set RM_BRANCH.  For versions of Redmine which have the same
+binary requirements as 2.3, you can leave RM_IMAGE alone.  Make sure
+RAILS_ENV is unset, or set to development.
 
 If there is a `2.3-stable` directory already, either move it or delete
 it.  Once `.env` is properly set and there's no other source directory,
@@ -325,10 +327,11 @@ Copy the files from `docker-redmine/templates` to your clone:
 
 Commit the changes.
 
-Now you can run the server with `redmine.sh` and your edits will show up
-when you test with a web browser.  You can run the same code in
-production by committing and pushing your changes, then making sure the
-production environment pulls from the same github user and branch.
+Run `initialize.sh` again to get the gems bundled.  Now you can run the
+server with `redmine.sh` and your edits will show up when you test with
+a web browser.  You can run the same code in production by committing
+and pushing your changes, then making sure the production environment
+pulls from the same github user and branch.
 
 ### File Ownership
 
@@ -338,15 +341,9 @@ This is the Linux user, as opposed to the database user.
 When the Redmine process writes to the filesystem, it uses the uid
 configured in the container.  From outside the container, the owner of
 the files is the user on the host with the same uid.  This may or may
-not be the uid of your account on the host, so if you have issues with
-file ownership, you may need to build a custom image with a different
-uid for the redmine user.
-
-### Docker Linking
-
-The configuration I've used is to expose the database and Redmine
-containers on known ports on the host.  I don't take advantage of the
-container linking features of Docker 0.7.
+not be your account on the host, so if you have issues with file
+ownership, you may need to build a custom image with a different uid for
+the redmine user.
 
 [Redmine]: http://www.redmine.org/
 [Docker]: http://www.docker.io/
