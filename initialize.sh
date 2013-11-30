@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -e ".env" ]; then
+if [[ -e .env ]]; then
   source .env
 fi
 
@@ -16,7 +16,7 @@ fi
 : ${RM_URL=git://github.com/$GH_USER/redmine}
 : ${RM_USER=redmine}
 
-if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
+if [[ -v RAILS_ENV && "$RAILS_ENV" == production ]]; then
   : ${DB_USER?"need to set database username DB_USER, see README.md"}
   : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
   : ${SU_USER?"need to set database superuser name SU_USER, see README.md"}
@@ -26,7 +26,7 @@ fi
 : ${OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"}
 : ${CMD=$ROOT/scripts/initialize.sh}
 
-if [ -d $RM_DIR ]; then
+if [[ -d "$RM_DIR" ]]; then
   cd $RM_DIR
   git pull
   cd ..

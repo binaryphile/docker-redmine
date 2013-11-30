@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -e ".env" ]; then
+if [[ -e .env ]]; then
   source .env
 fi
 
@@ -14,22 +14,23 @@ fi
 export REDMINE_LANG=$LANG
 
 cd $RM_DIR
-if [ ! -d .bundle ]; then
+if [[ ! -d .bundle ]]; then
   cp -R $BDL_DIR .
 fi
 
-if [ ! -e "$SECRET_FILE" ]; then
+if [[ ! -e "$SECRET_FILE" ]]; then
   bundle exec rake generate_secret_token
 fi
 
 mkdir -p $PID_DIR
 
-if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
+if [[ -v RAILS_ENV && "$RAILS_ENV" == production ]]; then
   export PGPASSWORD=$SU_PASS
   export PGUSER=$SU_USER
   export PGHOST=$DB_HOST
   psql template1 <<< "CREATE ROLE $DB_USER LOGIN ENCRYPTED PASSWORD '$DB_PASS' NOINHERIT VALID UNTIL 'infinity';"
   psql template1 <<< "CREATE DATABASE $DB_USER WITH ENCODING='UTF8' OWNER=$DB_USER;"
+  touch .production
 fi
 
 bundle exec rake db:migrate

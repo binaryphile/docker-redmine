@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -e ".env" ]; then
+if [[ -e .env ]]; then
   source .env
 fi
 
@@ -15,7 +15,7 @@ fi
 : ${RM_USER=redmine}
 : ${CMD=/bin/bash}
 
-if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
+if [[ -v RAILS_ENV && "$RAILS_ENV" == production ]]; then
   : ${DB_USER?"need to set database username DB_USER, see README.md"}
   : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
   : ${RM_PORT=3001}

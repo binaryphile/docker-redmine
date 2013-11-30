@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -e ".env" ]; then
+if [[ -e .env ]]; then
   source .env
 fi
 
@@ -14,7 +14,7 @@ fi
 : ${WK_DIR=$ROOT/$RM_DIR}
 : ${RM_USER=redmine}
 
-if [ -v RAILS_ENV -a "$RAILS_ENV" == production ]; then
+if [[ -v RAILS_ENV && "$RAILS_ENV" == production ]]; then
   : ${RM_PORT=3001}
   : ${MODE=-d}
   : ${RE="-e RAILS_ENV=$RAILS_ENV"}

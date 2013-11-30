@@ -5,4 +5,5 @@
 .viminfo
 .env
 .psql_history
+.production
 
