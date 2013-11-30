@@ -4,36 +4,35 @@ if [[ -e .env ]]; then
   source .env
 fi
 
-: ${RM_IMAGE?"need to set image name RM_IMAGE, see README.md"}
-: ${RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
-: ${GH_USER?"need to set github user GH_USER, see README.md"}
-
 : ${ROOT=/root}
 : ${RM_BRANCH=$RM_VERSION-stable}
-: ${RM_DIR=$RM_BRANCH}
-: ${MT_DIR=$(pwd)}
-: ${WK_DIR=$ROOT}
-: ${RM_URL=git://github.com/$GH_USER/redmine}
-: ${RM_USER=redmine}
+: ${RM_DIR=$ROOT/$RM_BRANCH}
+: ${BDL_DIR=/redmine/.bundle}
+: ${SECRET_FILE=$RM_DIR/config/initializers/secret_token.rb}
+: ${PID_DIR=$RM_DIR/pids}
+: ${LANG=en}
+export REDMINE_LANG=$LANG
+
+cd $RM_DIR
+if [[ ! -d .bundle ]]; then
+  cp -R $BDL_DIR .
+fi
+
+if [[ ! -e "$SECRET_FILE" ]]; then
+  bundle exec rake generate_secret_token
+fi
+
+mkdir -p $PID_DIR
 
 if [[ -v RAILS_ENV && "$RAILS_ENV" == production ]]; then
-  : ${DB_USER?"need to set database username DB_USER, see README.md"}
-  : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
-  : ${SU_USER?"need to set database superuser name SU_USER, see README.md"}
-  : ${SU_PASS?"need to set database superuser password SU_PASS, see README.md"}
+  export PGPASSWORD=$SU_PASS
+  export PGUSER=$SU_USER
+  export PGHOST=$DB_HOST
+  psql template1 <<< "CREATE ROLE $DB_USER LOGIN ENCRYPTED PASSWORD '$DB_PASS' NOINHERIT VALID UNTIL 'infinity';"
+  psql template1 <<< "CREATE DATABASE $DB_USER WITH ENCODING='UTF8' OWNER=$DB_USER;"
+  touch ../.production
 fi
 
-: ${OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"}
-: ${CMD=$ROOT/scripts/internal-init.sh}
-
-if [[ -d "$RM_DIR" ]]; then
-  cd $RM_DIR
-  git pull
-  cd ..
-else
-  git clone -b $RM_BRANCH $RM_URL $RM_DIR
-  ln -s ../.env $RM_DIR/.env
-fi
-
-$SUDO docker run $OPTIONS $RM_IMAGE $CMD
+bundle exec rake db:migrate
+bundle exec rake redmine:load_default_data
 

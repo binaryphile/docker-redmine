@@ -81,7 +81,7 @@ vim .env
 Follow the directions in `.env`.  At a minimum, set:
 
 - **SU_USER -** the superuser for the database cluster
-- **SU_USER -** the superuser password
+- **SU_PASS -** the superuser password
 - **DB_USER -** the application user for the database
 - **DB_PASS -** the application user password
 - **RAILS_ENV -** set to `production`
