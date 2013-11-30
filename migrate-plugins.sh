@@ -13,7 +13,7 @@ fi
 : ${WK_DIR=$ROOT}
 : ${RM_USER=redmine}
 : ${OPTIONS="-i -t -rm -u $RM_USER -v $MT_DIR:$ROOT -w $WK_DIR -e HOME=$ROOT"}
-: ${CMD=$ROOT/scripts/migrate-plugins.sh}
+: ${CMD=$ROOT/scripts/internal-migrate.sh}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
 

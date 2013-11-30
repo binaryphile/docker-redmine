@@ -4,7 +4,7 @@ if [[ -e .env ]]; then
   source .env
 fi
 
-: ${RM_IMAGE?"need to set image name RM_IMAGE, see README.md"}
+: ${RM_IMAGE?"need to set redmine image RM_IMAGE, see README.md"}
 : ${RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
 
 : ${ROOT=/root}
@@ -13,17 +13,20 @@ fi
 : ${MT_DIR=$(pwd)}
 : ${WK_DIR=$ROOT/$RM_DIR}
 : ${RM_USER=redmine}
-: ${CMD=/bin/bash}
 
 if [[ -v RAILS_ENV && "$RAILS_ENV" == production ]]; then
-  : ${DB_USER?"need to set database username DB_USER, see README.md"}
-  : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
   : ${RM_PORT=3001}
+  : ${MODE=-d}
+  : ${RE="-e RAILS_ENV=$RAILS_ENV"}
+  : ${UW="-e U_WORKERS=$U_WORKERS"}
+  : ${CMD="bundle exec unicorn_rails -c config/unicorn.rb"}
 else
   : ${RM_PORT=3000}
+  : ${MODE="-i -t -rm"}
+  : ${CMD="bundle exec rails s"}
 fi
 
-: ${OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT"}
+: ${OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT $RE $UW"}
 
 $SUDO docker run $OPTIONS $RM_IMAGE $CMD
 

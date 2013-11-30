@@ -14,31 +14,31 @@ That's it.
 ```
 git clone git://github.com/binaryphile/docker-redmine
 cd docker-redmine
-./demo.sh
+./redmine.sh
 ```
 
 This will download, initialize and start a Redmine instance in
 development mode on port 3000 of the host machine.  Connect at
 <http://localhost:3000/>.
 
-To stop the server hit Ctrl-C.  To restart the server in development
-mode, run `redmine.sh` instead of `demo.sh`.
+To stop the server hit Ctrl-C.  To restart the server, run `redmine.sh`
+again.
 
 ## Installing Plugins
 
-Put your plugins in `docker-redmine/2.3-stable/plugins` and run:
+Put your plugins in `2.3-stable/plugins` and run:
 
 ```
 ./migrate-plugins.sh
 ```
 
-Note: _don't_ put plugins in the directory before you've run `demo.sh`
-(or `initialize.sh` for production) or that command will fail.
+Note: _don't_ put plugins in the 2.3-stable directory before you've run
+`redmine.sh` at least once, or initialization may fail.
 
 ## Installing Themes
 
-Put your themes in `docker-redmine/2.3-stable/public/themes` and restart
-Redmine with `docker stop [id]` and `redmine.sh`.
+Put your themes in `2.3-stable/public/themes` and restart
+Redmine.
 
 ## Quick Start - Production Mode
 
@@ -87,25 +87,26 @@ Follow the directions in `.env`.  At a minimum, set:
 - **RAILS_ENV -** set to `production`
 
 ```
-./initialize.sh
 ./redmine.sh
 ```
 
 This will start a Redmine instance in production mode on port 3001 of
 the host machine.  Connect at <http://localhost:3001/>.
 
-To stop the server run `docker stop $(docker ps -l -q)`.
+To stop the server, run `docker stop $(docker ps -l -q)`.
+
+To restart the server, run `redmine.sh` again.
 
 To stop the PostgreSQL server, run `docker ps`, find the id of the
 PostgreSQL container and run `docker stop [id]`.
 
 Installing plugins and themes is the same as described above.
 
-## Upgrading
+## Deploying
 
 TBD
 
-## Deploying
+## Upgrading
 
 TBD
 
@@ -141,35 +142,39 @@ would any other theme.
 - binaryphile/ruby:2.0.0-p247
 - ubuntu:12.04
 
-## Directory Structure
+## Repo Directory Structure
 
 - **2.3-stable/ -** the Redmine 2.3 source repo (cloned during
-`initialize.sh`), with Docker-friendly customizations
+first run), with Docker-friendly customizations
 - **dockerfile/ -** directory with image creation scripts - see
-`README.md` in dir for details
-- **scripts/ -** scripts which are run from inside the container
-- **bash.sh -** start an interactive session inside a container
-(development mode by default)
-- **demo.sh -** do initial setup and run a development docker - use
-`redmine.sh` instead after first run
-- **initialize.sh -** set up the Redmine source, bundler, extra
-directories, the database and default data
+`README.md` in the directory for details
+- **scripts/ -** supporting scripts - run these from the
+`docker-redmine` so they get the environment configuration
+  - **bash.sh -** start an interactive session inside a container
+- development mode by default, set RAILS_ENV to run production
+  - **initialize.sh -** set up the Redmine source, bundler, extra
+directories, the database and default data, used by `redmine.sh`
 - **migrate-plugins.sh -** bundle plugin gems and migrate plugins
-- **sample.env -** sample values for important environment variables
+- **redmine.sh -** run the server using settings in `.env`, detect
+whether initialization done and run if necessary
+- **sample.env -** sample values for environment settings
 
 ## Dockerfile
 
-Instead of a conventional Dockerfile, there is a script `dockerfile.sh`
-in the `dockerfile` directory.  It's written in bash for a few reasons,
-mostly environment variable expansion, conditional execution and
-single-layer generation of the image.
+You will only need to rebuild the image if you need:
 
-You should only need it if you need a different version of Redmine.  If
-you're just looking to run Redmine as a server, you won't need to build
-the image.  You can customize the existing image with plugins and themes
-without a rebuild.
+- MSSQL or any DBMS other than PostgreSQL or MySQL
+- Subversion or any VCS other than Git or Mercurial
+- a plugin with a native compilation requirement which isn't supported
+by the image
 
-For more details, see `dockerfile/README.md`.
+The image is just a container for all of Redmine's system requirements.
+The Redmine source as well as plugins and gems are kept outside the
+container.  You can modify them without rebuilding the image.  You can
+even use the image for other branches of Redmine so long as the system
+prerequisites are the same.
+
+For details, see `dockerfile/README.md`.
 
 ## Maintenance
 
@@ -181,8 +186,9 @@ you're running production, periodically you will want to remove the
 stopped containers which are left over.
 
 You can do this using the command `docker rm $(docker ps -a -q)`.  Be
-careful, though, as this will remove all containers that aren't running,
-so only use it if you don't have containers you're trying to save.
+careful, though, as this will remove all containers which aren't
+running, so only use it if you don't have containers you're trying to
+save.
 
 If you do have stopped containers you're saving, you can get around this
 by making sure they are running when you run the rm command.  The rm
@@ -194,23 +200,13 @@ Otherwise you will have to delete the stopped containers by id.
 MySQL support hasn't been tested, but the image is built with the
 prereqs.
 
-Edit `.env` and set DB_ADAPTER to `mysql`.  You'll want to run
-`initialize.sh` once in development mode so it can set up the host
-(it'll set up a sqlite database as well, but that's ancillary).  After
-that, switch RAILS_ENV to production so it will try to talk to MySQL
-from then on.
+Edit `.env` and set DB_ADAPTER to `mysql` and RAILS_ENV to `production`.
+Remove the `.production` file if it's there.  Set up your MySQL database
+with a redmine user and empty redmine schema.  Run `redmine.sh` and it
+will load the migrations and default data and then it will run the
+server.
 
-You'll need to initialize the MySQL Redmine database yourself by
-following the directions provided at the Redmine site.  You'll also have
-to run the migrations and load default data by hand.
-
-You can probably do this from your host machine without running a
-container (assuming you have a working ruby environment).  However if
-you need to run from the container, you can use the `bash.sh` script to
-run an interactive shell inside.  The working directory will be mounted
-as `/root`.
-
-## Image Details
+## Production
 
 The idea is to make it as simple as possible to deploy Redmine 2.3 on
 any system which supports Docker.
@@ -223,18 +219,7 @@ Not only that, the container itself is disposable.  No state or
 configuration is kept inside the container.  Only the binary executables
 are stored inside.  This means that you never restart a container with
 the `docker start` command, instead you're always using the `docker run`
-command in the form of one of the scripts in this project.
-
-There are three basic usage models:
-
-- production use only - you just want a Redmine server and maybe some
-plugins and themes
-- staging and production - like production use only but pilot-testing
-new plugins in separate staging environment, perhaps your own desktop
-- development and production use - you want to hack on plugin code or
-the Redmine code itself
-
-### Production
+command (in the form of one of the scripts in this project).
 
 If you just want to run in production, follow the quick start
 directions.  You'll need a real database system such as PostgreSQL.
@@ -258,7 +243,7 @@ set RM_PORT to port 80 in `.env`.  You may need to configure the server
 to serve static assets, although I haven't had to on mine, it just seems
 to work.
 
-### Staging
+## Staging
 
 While you may simply set up a Redmine server and let it run, if you are
 upgrading the machine periodically, you may want to stage a separate
@@ -278,7 +263,7 @@ Unzip both directories on the staging machine and run the PostgreSQL
 server then upgrade Redmine and run it.  See the [Redmine] site for
 details on upgrading.
 
-### Development
+## Development
 
 If you're working on Redmine code itself or plugins, you can run a
 container in development mode.  The image does not, however, provide a
@@ -315,31 +300,32 @@ RAILS_ENV is unset, or set to development.
 
 If there is a `2.3-stable` directory already, either move it or delete
 it.  Once `.env` is properly set and there's no other source directory,
-run `initialize.sh`.  This will clone the git repository and set up the
-extra directories necessary to run.
+run `scripts/initialize.sh`.  This will clone the git repository and
+set up the extra directories necessary to run.
 
-Copy the files from `docker-redmine/templates` to your clone:
+Copy the files from `templates` to your clone (substitute your branch
+name for `2.3-stable`):
 
-- database.yml - `docker-redmine/config/database.yml`
-- Gemfile.local - `docker-redmine/Gemfile.local`
-- sample.gitignore - `docker-redmine/.gitignore`
-- unicorn.rb - `docker-redmine/config/unicorn.rb`
+- database.yml - `2.3-stable/config/database.yml`
+- Gemfile.local - `2.3-stable/docker-redmine/Gemfile.local`
+- sample.gitignore - `2.3-stable/.gitignore`
+- unicorn.rb - `2.3-stable/config/unicorn.rb`
 
 Commit the changes.
 
-Run `initialize.sh`.  Now you can run the server with `redmine.sh` and
-your edits will show up when you test with a web browser.  You can run
-the same code in production by committing and pushing your changes, then
-making sure the production environment pulls from the same github user
-and branch.
+Now you can run the server with `redmine.sh` and your code changes will
+show up when you test with a web browser, as is typical in development
+mode.  You can run your same code in production by committing and
+pushing your changes, then making sure the production environment pulls
+from the same github user and branch.
 
-### File Ownership
+## File Ownership
 
 The Redmine server in the container is run under the user "redmine".
-This is the Linux user, as opposed to the database user.
+I'm talking about the Linux user, as opposed to the database user.
 
-When the Redmine process writes to the filesystem, it uses the uid
-configured in the container.  From outside the container, the owner of
+When the Redmine process writes to the filesystem, it uses the uid of
+the container's redmine user.  From outside the container, the owner of
 the files is the user on the host with the same uid.  This may or may
 not be your account on the host, so if you have issues with file
 ownership, you may need to build a custom image with a different uid for
