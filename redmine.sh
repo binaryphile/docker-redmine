@@ -2,15 +2,11 @@
 
 initialize () {
 
-  if [[ "$RAILS_ENV" == production ]]; then
-    : ${DB_USER?"need to set database username DB_USER, see README.md"}
-    : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
-    : ${SU_USER?"need to set database superuser name SU_USER, see README.md"}
-    : ${SU_PASS?"need to set database superuser password SU_PASS, see README.md"}
-  fi
+  : ${GH_USER?"need to set github user GH_USER, see README.md"}
 
-  : ${OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"}
-  : ${CMD=$ROOT/scripts/initialize.sh}
+  if [[ ! -v RM_URL ]]; then local RM_URL=git://github.com/$GH_USER/redmine; fi
+  local OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"
+  local CMD=$ROOT/scripts/initialize.sh
 
   if [[ -d "$RM_DIR" ]]; then
     cd $RM_DIR
@@ -28,18 +24,20 @@ initialize () {
 redmine () {
 
   if [[ "$RAILS_ENV" == production ]]; then
-    : ${RM_PORT=3001}
-    : ${MODE=-d}
-    : ${RE="-e RAILS_ENV=$RAILS_ENV"}
-    : ${UW="-e U_WORKERS=$U_WORKERS"}
-    : ${CMD="bundle exec unicorn_rails -c config/unicorn.rb"}
+    if [[ ! -v RM_PORT ]]; then local RM_PORT=3001; fi
+    if [[ ! -v DB_HOST ]]; then local DB_HOST=172.17.42.1; fi
+    local MODE=-d
+    local RE="-e RAILS_ENV=$RAILS_ENV"
+    local UW="-e U_WORKERS=$U_WORKERS"
+    local DB="-e DB_HOST=$DBHOST"
+    local CMD="bundle exec unicorn_rails -c config/unicorn.rb"
   else
-    : ${RM_PORT=3000}
-    : ${MODE="-i -t -rm"}
-    : ${CMD="bundle exec rails s"}
+    if [[ ! -v RM_PORT ]]; then local RM_PORT=3000; fi
+    local MODE="-i -t -rm"
+    local CMD="bundle exec rails s"
   fi
 
-  : ${OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR/$RM_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT $RE $UW"}
+  local OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR/$RM_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT $RE $UW $DB"
 
   $SUDO docker run $OPTIONS $RM_IMAGE $CMD
 
@@ -53,18 +51,16 @@ source .env
 
 : ${RM_IMAGE?"need to set image name RM_IMAGE, see README.md"}
 : ${RM_VERSION?"need to set redmine version RM_VERSION, see README.md"}
-: ${GH_USER?"need to set github user GH_USER, see README.md"}
 
-: ${ROOT=/root}
-: ${RM_BRANCH=$RM_VERSION-stable}
-: ${RM_DIR=$RM_BRANCH}
-: ${MT_DIR=$(pwd)}
-: ${WK_DIR=$ROOT}
-: ${RM_URL=git://github.com/$GH_USER/redmine}
-: ${RM_USER=redmine}
+if [[ ! -v ROOT ]]; then ROOT=/root; fi
+if [[ ! -v RM_BRANCH ]]; then RM_BRANCH=$RM_VERSION-stable; fi
+if [[ ! -v RM_DIR ]]; then RM_DIR=$RM_BRANCH; fi
+if [[ ! -v RM_USER ]]; then RM_USER=redmine; fi
+MT_DIR=$(pwd)
+WK_DIR=$ROOT
 
 if [[ ! -v RAILS_ENV || "$RAILS_ENV" == development ]]; then
-  if [[ ! -e $RM_DIR/db/development.sqlite ]]; then
+  if [[ ! -e $RM_DIR/db/development.sqlite3 ]]; then
     initialize
   fi
 else

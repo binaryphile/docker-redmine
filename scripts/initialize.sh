@@ -1,17 +1,18 @@
 #!/bin/bash
 
 if [[ -e .env ]]; then
-  source .env
+  cp sample.env .env
 fi
 
-: ${ROOT=/root}
-: ${RM_BRANCH=$RM_VERSION-stable}
-: ${RM_DIR=$ROOT/$RM_BRANCH}
-: ${BDL_DIR=/redmine/.bundle}
-: ${SECRET_FILE=$RM_DIR/config/initializers/secret_token.rb}
-: ${PID_DIR=$RM_DIR/pids}
-: ${LANG=en}
-export REDMINE_LANG=$LANG
+source .env
+
+if [[ ! -v ROOT ]]; then ROOT=/root; fi
+if [[ ! -v RM_BRANCH ]]; then RM_BRANCH=$RM_VERSION-stable; fi
+if [[ ! -v RM_DIR ]]; then RM_DIR=$ROOT/$RM_BRANCH; fi
+BDL_DIR=/redmine/.bundle
+SECRET_FILE=$RM_DIR/config/initializers/secret_token.rb
+PID_DIR=$RM_DIR/pids
+if [[ ! -v REDMINE_LANG ]]; then export REDMINE_LANG=en; fi
 
 cd $RM_DIR
 if [[ ! -d .bundle ]]; then
@@ -24,7 +25,12 @@ fi
 
 mkdir -p $PID_DIR
 
-if [[ -v RAILS_ENV && "$RAILS_ENV" == production ]]; then
+if [[ "$RAILS_ENV" == production ]]; then
+  : ${DB_USER?"need to set database username DB_USER, see README.md"}
+  : ${DB_PASS?"need to set database password DB_PASS, see README.md"}
+  : ${SU_USER?"need to set database superuser name SU_USER, see README.md"}
+  : ${SU_PASS?"need to set database superuser password SU_PASS, see README.md"}
+  if [[ ! -v DB_HOST ]]; then DB_HOST=172.17.42.1; fi
   export PGPASSWORD=$SU_PASS
   export PGUSER=$SU_USER
   export PGHOST=$DB_HOST
