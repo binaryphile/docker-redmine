@@ -1,9 +1,14 @@
 /dockerfile/redmine-*/
 /*-stable/
 /plugins/
-.bash_history
-.viminfo
-.env
-.psql_history
-.production
+/.bash_history
+/.viminfo
+/.env
+/.psql_history
+/.production
+/revisions.log
+/shared/
+/current
+/releases/
+/repo/
 

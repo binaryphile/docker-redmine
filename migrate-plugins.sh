@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -e .env ]]; then
+if [[ ! -e .env ]]; then
   cp sample.env .env
 fi
 
