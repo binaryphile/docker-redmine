@@ -11,7 +11,7 @@ initialize () {
   if [[ -d "$RM_DIR" ]]; then
     cd $RM_DIR
     git pull
-    cd ..
+    cd $ROOT
   else
     git clone -b $RM_BRANCH $RM_URL $RM_DIR
     ln -s ../.env $RM_DIR/.env
@@ -30,16 +30,16 @@ redmine () {
     local RE="-e RAILS_ENV=$RAILS_ENV"
     local UW="-e U_WORKERS=$U_WORKERS"
     local DB="-e DB_HOST=$DBHOST"
-    local CMD="bundle exec unicorn_rails -c config/unicorn.rb"
+    local CMD="/bin/sh -c \"cd $RM_DIR && bundle exec unicorn_rails -c config/unicorn.rb\" "
   else
     if [[ ! -v RM_PORT ]]; then local RM_PORT=3000; fi
     local MODE="-i -t -rm"
-    local CMD="bundle exec rails s"
+    local CMD="/bin/sh -c \"cd $RM_DIR && bundle exec rails s\" "
   fi
 
-  local OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR/$RM_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT $RE $UW $DB"
+  local OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT $RE $UW $DB"
 
-  $SUDO docker run $OPTIONS $RM_IMAGE $CMD
+  $SUDO docker run $OPTIONS $RM_IMAGE /bin/sh -c "cd $RM_DIR && bundle exec rails s"
 
 }
 
