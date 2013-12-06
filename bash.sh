@@ -14,7 +14,7 @@ if [[ ! -v RM_BRANCH ]]; then RM_BRANCH=$RM_VERSION-stable; fi
 if [[ ! -v RM_DIR ]]; then RM_DIR=$RM_BRANCH; fi
 if [[ ! -v RM_USER ]]; then RM_USER=redmine; fi
 MT_DIR=$(pwd)
-WK_DIR=$ROOT/$RM_DIR
+WK_DIR=$ROOT
 CMD=/bin/bash
 
 if [[ "$RAILS_ENV" == production ]]; then

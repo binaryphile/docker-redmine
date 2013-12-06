@@ -8,13 +8,11 @@ initialize () {
   local OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -e HOME=$ROOT"
   local CMD=$ROOT/scripts/initialize.sh
 
-  if [[ -d "$RM_DIR" ]]; then
-    cd $RM_DIR
-    git pull
-    cd $ROOT
-  else
+  if [[ ! -d "$RM_DIR" ]]; then
+    mkdir -p $RM_DIR
     git clone -b $RM_BRANCH $RM_URL $RM_DIR
-    ln -s ../.env $RM_DIR/.env
+    ln -s ../../.env $RM_DIR/.env
+    ln -s $RM_DIR current
   fi
 
   $SUDO docker run $OPTIONS $RM_IMAGE $CMD
@@ -26,20 +24,13 @@ redmine () {
   if [[ "$RAILS_ENV" == production ]]; then
     if [[ ! -v RM_PORT ]]; then local RM_PORT=3001; fi
     if [[ ! -v DB_HOST ]]; then local DB_HOST=172.17.42.1; fi
-    local MODE=-d
-    local RE="-e RAILS_ENV=$RAILS_ENV"
-    local UW="-e U_WORKERS=$U_WORKERS"
-    local DB="-e DB_HOST=$DBHOST"
-    local CMD="/bin/sh -c \"cd $RM_DIR && bundle exec unicorn_rails -c config/unicorn.rb\" "
+    local OPTIONS="-d -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT -e RAILS_ENV=$RAILS_ENV -e U_WORKERS=$U_WORKERS -e DB_HOST=$DB_HOST"
+    $SUDO docker run $OPTIONS $RM_IMAGE /bin/sh -c "cd current && bundle exec unicorn_rails -c config/unicorn.rb"
   else
     if [[ ! -v RM_PORT ]]; then local RM_PORT=3000; fi
-    local MODE="-i -t -rm"
-    local CMD="/bin/sh -c \"cd $RM_DIR && bundle exec rails s\" "
+    local OPTIONS="-i -t -rm -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT"
+    $SUDO docker run $OPTIONS $RM_IMAGE /bin/sh -c "cd current && bundle exec rails s"
   fi
-
-  local OPTIONS="$MODE -u $RM_USER -w $WK_DIR -v $MT_DIR:$ROOT -p $RM_PORT:3000 -e HOME=$ROOT $RE $UW $DB"
-
-  $SUDO docker run $OPTIONS $RM_IMAGE /bin/sh -c "cd $RM_DIR && bundle exec rails s"
 
 }
 
@@ -54,13 +45,13 @@ source .env
 
 if [[ ! -v ROOT ]]; then ROOT=/root; fi
 if [[ ! -v RM_BRANCH ]]; then RM_BRANCH=$RM_VERSION-stable; fi
-if [[ ! -v RM_DIR ]]; then RM_DIR=$RM_BRANCH; fi
+if [[ ! -v RM_DIR ]]; then RM_DIR=releases/$RM_BRANCH; fi
 if [[ ! -v RM_USER ]]; then RM_USER=redmine; fi
 MT_DIR=$(pwd)
 WK_DIR=$ROOT
 
 if [[ ! -v RAILS_ENV || "$RAILS_ENV" == development ]]; then
-  if [[ ! -e $RM_DIR/db/development.sqlite3 ]]; then
+  if [[ ! -e current/db/development.sqlite3 ]]; then
     initialize
   fi
 else

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 if [[ ! -e .env ]]; then
   cp sample.env .env
@@ -8,7 +8,7 @@ source .env
 
 if [[ ! -v ROOT ]]; then ROOT=/root; fi
 if [[ ! -v RM_BRANCH ]]; then RM_BRANCH=$RM_VERSION-stable; fi
-if [[ ! -v RM_DIR ]]; then RM_DIR=$ROOT/$RM_BRANCH; fi
+if [[ ! -v RM_DIR ]]; then RM_DIR=$ROOT/current; fi
 BDL_DIR=/redmine/.bundle
 SECRET_FILE=$RM_DIR/config/initializers/secret_token.rb
 PID_DIR=$RM_DIR/pids
@@ -39,6 +39,7 @@ if [[ "$RAILS_ENV" == production ]]; then
   touch $ROOT/.production
 fi
 
+cd $RM_DIR
 bundle exec rake db:migrate
 bundle exec rake redmine:load_default_data
 
